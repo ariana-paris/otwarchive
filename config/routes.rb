@@ -25,6 +25,9 @@ Otwarchive::Application.routes.draw do
                 sign_out: 'logout'
               }
 
+
+  use_doorkeeper
+
   #### ERRORS ####
 
   get '/403', to: 'errors#403'
