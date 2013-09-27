@@ -1,5 +1,7 @@
 Otwarchive::Application.routes.draw do
 
+  use_doorkeeper
+
   devise_for :admin,
              module: 'admin',
              only: :sessions,

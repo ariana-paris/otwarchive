@@ -192,6 +192,9 @@ GEM
     doorkeeper (0.7.2)
       jquery-rails (>= 2.0.2)
       railties (>= 3.1)
+    doorkeeper (0.7.2)
+      jquery-rails (>= 2.0.2)
+      railties (>= 3.1)
     erubis (2.7.0)
     escape_utils (0.3.2)
     ethon (0.6.2)
@@ -511,6 +514,7 @@ DEPENDENCIES
   dalli
   database_cleaner (= 1.5.2)
   delorean
+  doorkeeper (~> 0.7.2)
   devise
   devise-async
   elasticsearch (>= 6.0.0)
