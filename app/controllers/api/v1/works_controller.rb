@@ -1,6 +1,11 @@
 class Api::V1::WorksController < Api::V1::BaseController
   respond_to :json
 
+
+  def show
+    respond_with Work.find(params[:id])
+  end
+
   # Return the URLs of a batch of individual works. Limits the number of URLs to
   # IMPORT_MAX_CHAPTERS so it doesn't get tied up in checking URLs for too long.
   # Params:

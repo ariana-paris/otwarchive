@@ -16,6 +16,13 @@ module Api
         end
       end
 
+      # API security
+      def current_user
+        if doorkeeper_token
+          @current_user ||= User.find(doorkeeper_token.resource_owner_id)
+        end
+      end
+
       # Top-level error handling: returns a 403 forbidden if a valid archivist isn't supplied and a 400
       # if no works are supplied. If there is neither a valid archivist nor valid works, a 400 is returned
       # with both errors as a message
