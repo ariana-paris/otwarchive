@@ -571,6 +571,12 @@ Otwarchive::Application.routes.draw do
       get :about
     end
   end
+  
+  namespace :api do
+    namespace :v1 do
+      resources :works, only: [ :show ]
+    end
+  end
 
   # API end points
   namespace :api do

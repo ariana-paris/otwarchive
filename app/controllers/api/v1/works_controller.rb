@@ -13,8 +13,11 @@ class Api::V1::WorksController < Api::V1::BaseController
     end
   end
 
+  respond_to :json
+
   def show
     @work = Work.find(params[:id])
+    respond_with @work
   end
 
 # Return the URLs of a batch of individual works. Limits the number of URLs to
