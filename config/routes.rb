@@ -569,6 +569,12 @@ Otwarchive::Application.routes.draw do
       get :about
     end
   end
+  
+  namespace :api do
+    namespace :v1 do
+      resources :works, only: [ :show ]
+    end
+  end
 
   get 'search' => 'works#search'
   post 'support' => 'feedbacks#create', as: 'feedbacks'

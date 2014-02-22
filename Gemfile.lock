@@ -224,6 +224,17 @@ GEM
     json (2.1.0)
     kgio (2.10.0)
     launchy (2.4.3)
+    i18n (0.6.1)
+    jbuilder (2.0.3)
+      activesupport (>= 3.0.0)
+      multi_json (>= 1.2.0)
+    journey (1.0.4)
+    jquery-rails (3.0.1)
+      railties (>= 3.0, < 5.0)
+      thor (>= 0.14, < 2.0)
+    json (1.8.0)
+    kgio (2.8.0)
+    launchy (2.3.0)
       addressable (~> 2.3)
     lograge (0.6.0)
       actionpack (>= 4, < 5.2)
@@ -520,6 +531,8 @@ DEPENDENCIES
   htmlentities
   httparty
   kgio (= 2.10.0)
+  jbuilder
+  jquery-rails (>= 0.2.6)
   launchy
   lograge
   mechanize
