@@ -1,25 +1,11 @@
 json.extract! work, :id, :title, :summary, :notes, :endnotes, :complete, :restricted, :revised_at, :word_count
 
-json.creators do
-  if work.anonymous?
-    'Anonymous'
-  else
-    json.array!(work.pseuds.each) do |pseud|
-        json.id         pseud.user_id
-        json.name       pseud.name
-        json.username   pseud.user_login
-    end
-  end
-end
-
 json.url                  work_url(work)
 json.comment_url          new_work_comment_url(work)
 json.language             work.language.try(:name) || 'English'
+json.byline               byline(work, :visibility => 'public').html_safe
 json.chapters_posted      work.chapters.posted.count
 json.chapters_expected    work.expected_number_of_chapters
-
-
-
 
 json.tags do
   work.tag_groups.each_pair do |type, tags|
