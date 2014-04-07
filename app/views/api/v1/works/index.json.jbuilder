@@ -2,6 +2,6 @@
 json.total_count @works.to_a.count
 
 # List minimal work information
-json.works @works do |work|
+json.works @works.each do |work|
   json.partial! 'blurb', work: work
 end
