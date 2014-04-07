@@ -1,17 +1,21 @@
 class Api::V1::WorksController < Api::V1::BaseController
   respond_to :json
 
-
-
   def index
-    @works = Work.first(5)
+    if params[:work_search].present?
+      options = params[:work_search].dup
+      @search = WorkSearch.new(options)
+      @works = @search.search_results
+    else
+      @works = Work.first(5)
+    end
   end
 
   def show
     @work = Work.find(params[:id])
   end
 
-  # Return the URLs of a batch of individual works. Limits the number of URLs to
+# Return the URLs of a batch of individual works. Limits the number of URLs to
   # IMPORT_MAX_CHAPTERS so it doesn't get tied up in checking URLs for too long.
   # Params:
   # +original_urls+:: an array of original URLs to find on the Archive
