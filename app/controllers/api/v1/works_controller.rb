@@ -1,10 +1,12 @@
 class Api::V1::WorksController < Api::V1::BaseController
   respond_to :json
 
-  def index
-    if params[:work_search].present?
-      options = params[:work_search].dup
-      @search = WorkSearch.new(options)
+  # Exclude the automatic action and controller values;
+  # pass everything else to WorkSearch and let it raise an
+  # exception if
+   def index
+    if params.present?
+      @search = WorkSearch.new(params.except(:action, :controller))
       @works = @search.search_results
     else
       @works = Work.first(5)
