@@ -3,7 +3,7 @@ class Api::V1::WorksController < Api::V1::BaseController
 
   # Exclude the automatic action and controller values;
   # pass everything else to WorkSearch and let it raise an
-  # exception if
+  # exception if it doesn't like the look of something
    def index
     if params.present?
       @search = WorkSearch.new(params.except(:action, :controller))
