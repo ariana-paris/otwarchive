@@ -576,7 +576,6 @@ Otwarchive::Application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :works, only: [ :show, :index ]
-      resources :blurbs, only: [ :show ]
       resources :users, only: [ :index, :show ]
     end
   end
