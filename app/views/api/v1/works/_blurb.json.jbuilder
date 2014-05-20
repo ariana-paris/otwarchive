@@ -1,26 +1,15 @@
 json.extract! work, :id, :title, :summary, :notes, :endnotes, :complete, :restricted, :revised_at, :word_count
 
-json.creators do
-  if work.anonymous?
-    'Anonymous'
-  else
-    json.array!(work.pseuds.each) do |pseud|
-        json.id         pseud.user_id
-        json.name       pseud.name
-        json.username   pseud.user_login
-    end
-  end
-end
+# Include creators
+json.partial! 'creators', work: work
 
-json.url                  work_url(work)
+json.url                  api_v1_work_url(work)
 json.comment_url          new_work_comment_url(work)
 json.language             work.language.try(:name) || 'English'
 json.chapters_posted      work.chapters.posted.count
 json.chapters_expected    work.expected_number_of_chapters
 
-
-
-
+# All the tags
 json.tags do
   work.tag_groups.each_pair do |type, tags|
     unless tags.blank?
@@ -42,13 +31,13 @@ end
 
 json.inspired_parents work.parent_work_relationships do |rw|
   json.title    rw.parent.title
-  json.byline   byline(rw.parent)
+  json.partial! 'creators', work: rw.parent
   json.url      url_for(action: :show, controller: rw.parent_type.underscore.pluralize, id: rw.parent_id, only_path: false)
 end
 
 json.inspired_children work.approved_related_works do |rw|
   json.title        rw.work.title
-  json.byline       byline(rw.work)
+  json.partial! 'creators', work: rw.work
   json.translation  rw.translation?
-  json.url          work_url(rw.work)
+  json.url          api_v1_work_url(rw.work)
 end
