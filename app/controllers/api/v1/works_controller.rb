@@ -1,15 +1,16 @@
 class Api::V1::WorksController < Api::V1::BaseController
   respond_to :json
 
-  # Exclude the automatic action and controller values;
+  # Exclude the automatic action, controller and format values;
   # pass everything else to WorkSearch and let it raise an
   # exception if it doesn't like the look of something
    def index
     if params.present?
-      @search = WorkSearch.new(params.except(:action, :controller))
+      @search = WorkSearch.new(params.except(:action, :controller, :format))
       @works = @search.search_results
     else
-      @works = Work.first(5)
+      @search = WorkSearch.new(params.except(:format))
+      @works = @search.search_results
     end
   end
 
