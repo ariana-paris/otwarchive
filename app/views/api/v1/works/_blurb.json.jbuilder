@@ -9,14 +9,14 @@ json.language             work.language.try(:name) || 'English'
 json.chapters_posted      work.chapters.posted.count
 json.chapters_expected    work.expected_number_of_chapters
 
-# All the tags
-json.tags do
-  work.tag_groups.each_pair do |type, tags|
-    unless tags.blank?
-      json.set! type, tags.map(&:name)
-    end
+# All the tags, returned as separate
+work.tag_groups.each_pair do |type, tags|
+  unless tags.blank?
+    type = type.downcase.gsub(/freeform/, 'additional_tag').pluralize
+    json.set! type, tags.map {|tag| {id: tag.id, name: tag.name}}
   end
 end
+
 
 json.series work.serial_works do |sw|
   json.title      sw.series.title

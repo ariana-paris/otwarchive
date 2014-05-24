@@ -6,15 +6,13 @@ class Api::V1::WorksController < Api::V1::BaseController
   # exception if it doesn't like the look of something
    def index
     if params.present?
-      @search = WorkSearch.new(params.except(:action, :controller, :format))
+      @search = WorkSearch.new(params.except(:action, :controller, :format, :show_restricted))
       @works = @search.search_results
     else
-      @search = WorkSearch.new(params.except(:format))
+      @search = WorkSearch.new(params.except(:format, :show_restricted))
       @works = @search.search_results
     end
   end
-
-  respond_to :json
 
   def show
     @work = Work.find(params[:id])
