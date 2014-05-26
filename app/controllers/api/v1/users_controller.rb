@@ -2,7 +2,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   respond_to :json
 
   def index
-    @users = User.first(5)
+    @users = User.first(ArchiveConfig.ITEMS_PER_PAGE)
   end
 
   def show
