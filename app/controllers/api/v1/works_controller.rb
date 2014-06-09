@@ -1,16 +1,19 @@
 class Api::V1::WorksController < Api::V1::BaseController
   respond_to :json
 
-  # Exclude the automatic action, controller and format values;
-  # pass everything else to WorkSearch and let it raise an
-  # exception if it doesn't like the look of something
+  # GET works
   def index
-    @works = WorkSearch.new(params.except(:action, :controller, :format, :show_restricted)).search_results
+    @works = WorkSearch.new(work_params).search_results
   end
 
+  # GET works/:id
   def show
-    @work = Work.find(params[:id])
-    respond_with @work
+    work = Work.find(params[:id])
+    if work.restricted?
+      render status: :unauthorized, json: {success: false, errors: ["You do not have access to this work. Please note that to respect our users' wishes, restricted works are not visible via the API."]}
+      return
+    else
+      @work = work
   end
 
 # Return the URLs of a batch of individual works. Limits the number of URLs to
@@ -68,6 +71,14 @@ class Api::V1::WorksController < Api::V1::BaseController
     end
     render status: status, json: { messages: messages, works: works_responses }
   end
+
+  def update
+    @work = Work.find(params[:id])
+    if @work.update_attributes(work_params)
+      render 'show'
+    else
+      render status: :unprocessable_entity, json: {success: false, errors: @work.errors.full_messages }
+    end
 
   private
 
@@ -221,4 +232,21 @@ class Api::V1::WorksController < Api::V1::BaseController
       external_coauthor_email: work_params[:external_coauthor_email]
     }
   end
+
+  # Restrict parameters - show_restricted is removed to prevent restricted works being
+  # displayed to API consumers, since they are restricted to Archive users only
+  def work_params
+    params.except!(:action, :controller, :format, :show_restricted)
+    creators = params[:creators]
+    pseud_ids = []
+    unless creators.nil?
+      creators.each do |creator|
+        pseud_ids.push(creator[:id].to_i)
+      end
+      params[:authors_attributes][:ids] = pseud_ids
+      params.delete('creators')
+    end
+    params
+  end
+
 end

@@ -1,8 +1,13 @@
 # Partial for rendering one user
 json.extract! user, :id, :login
-works = user.works.visible_to_all.revealed.non_anon.to_a
+
+json.pseudonyms(user.pseuds) do |pseud|
+  json.id             pseud.id
+  json.display_name   pseud.name
+end
 
 # List a few works
+works = user.works.visible_to_all.revealed.non_anon.to_a
 if num.nil?
   json.works works do |work|
     json.title work.title
