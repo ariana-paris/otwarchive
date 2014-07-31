@@ -575,8 +575,8 @@ Otwarchive::Application.routes.draw do
   # API end points
   namespace :api do
     namespace :v1 do
-      resources :works, only: [ :index, :show, :update ]
-      resources :users, only: [ :index, :show ]
+      resources :works, only: [ :index, :show, :update ], defaults: {format: :json}
+      resources :users, only: [ :index, :show ], defaults: {format: :json}
     end
   end
 
