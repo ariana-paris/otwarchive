@@ -10,7 +10,9 @@ class Api::V1::WorksController < Api::V1::BaseController
   def show
     work = Work.find(params[:id])
     if work.restricted?
-      render status: :unauthorized, json: {success: false, errors: ["You do not have access to this work. Please note that to respect our users' wishes, restricted works are not visible via the API."]}
+      render status: :unauthorized,
+             json: {success: false, errors: ["You do not have access to this work. Please note that to respect our
+                                              users' wishes, restricted works are not visible via the API."]}
       return
     else
       @work = work
@@ -236,7 +238,7 @@ class Api::V1::WorksController < Api::V1::BaseController
   # Restrict parameters - show_restricted is removed to prevent restricted works being
   # displayed to API consumers, since they are restricted to Archive users only
   def work_params
-    params.except!(:action, :controller, :format, :show_restricted)
+    params.except!(:action, :controller, :format, :show_restricted, :token)
     creators = params[:creators]
     pseud_ids = []
     unless creators.nil?
