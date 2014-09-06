@@ -28,5 +28,8 @@ Otwarchive::Application.configure do
   config.i18n.fallbacks = true
   # Make it clear we are on Dev
   config.rack_dev_mark.enable = true
-  config.rack_dev_mark.theme = [:title, Rack::DevMark::Theme::GithubForkRibbon.new(position: 'left', color: 'green' , fixed: 'true' )]
+  config.rack_dev_mark.env = %x(git symbolic-ref -q HEAD)
+  config.rack_dev_mark.theme = [:title, Rack::DevMark::Theme::GithubForkRibbon.new(position: 'left',
+                                                                                   color: 'green' ,
+                                                                                   fixed: 'true' )]
 end
