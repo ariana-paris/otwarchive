@@ -577,6 +577,7 @@ Otwarchive::Application.routes.draw do
     namespace :v1 do
       resources :works, only: [ :index, :show, :update ], defaults: {format: :json}
       resources :users, only: [ :index, :show ], defaults: {format: :json}
+      resources :import, only: [:create], defaults: {format: :json}
     end
   end
 
