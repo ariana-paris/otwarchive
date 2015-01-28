@@ -8,6 +8,7 @@ class Api::V1::ImportController < Api::V1::BaseController
     archivist = User.find_by_login(params[:archivist])
     external_works = params[:works]
     results = ""
+    success = false
     if archivist && archivist.is_archivist?
       if external_works
         external_works.each do |work|
@@ -18,21 +19,22 @@ class Api::V1::ImportController < Api::V1::BaseController
           begin
             @work = storyparser.download_and_parse_chapters_into_story(urls, options)
             @work.save
-            results << "Successfully created work '" + @work.title
+            success = true
+            results << 'Successfully created work "' + @work.title + '"\n'
           rescue => exception
             results << exception.message
           end
         else
-          results << "No URLs were provided for a work"
+          results << 'No URLs were provided for a work'
         end
       end
       # send_external_invites(@works)
-      render status: :ok, json: {success: true, results: results}
+      render status: :ok, json: {success: success, message: results}
       else
-        render status: :bad_request, json: {success: false, results: "No data was provided for works to import"}
+        render status: :bad_request, json: {success: success, message: 'No data was provided for works to import'}
       end
     else
-      render status: :forbidden, json: {success: false, errors: 'Only an archivist can import works through the API'}
+      render status: :forbidden, json: {success: success, message: 'Only an archivist can import works through the API'}
     end
   end
 
