@@ -13,7 +13,6 @@ class Api::V1::WorksController < Api::V1::BaseController
       render status: :unauthorized,
              json: {success: false, errors: ["You do not have access to this work. Please note that to respect our
                                               users' wishes, restricted works are not visible via the API."]}
-      return
     else
       @work = work
   end
