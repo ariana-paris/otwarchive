@@ -11,8 +11,9 @@ describe 'API response codes' do
     assert_equal 200, response.status
   end
 
-  it 'should return 401' do
+  it 'should return 401 when client has no token' do
     get '/api/v1/works'
     assert_equal 401, response.status
   end
+
 end
