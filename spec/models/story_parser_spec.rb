@@ -1,7 +1,11 @@
 require 'spec_helper'
 require 'webmock'
 
-describe StoryParser do
+include Import
+
+describe Import::StoryParser do
+  chaptered_locations = StoryParser::CHAPTERED_STORY_LOCATIONS
+  known_locations = StoryParser::KNOWN_STORY_LOCATIONS
 
   # Temporarily make the methods we want to test public
   before(:all) do
@@ -26,42 +30,42 @@ describe StoryParser do
 
       it "should match http://fanfiction.net" do
         url = "http://fanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to eq("ffnet")
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to eq("ffnet")
       end
 
       it "should match fanfiction.net" do
         url = "fanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to eq("ffnet")
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to eq("ffnet")
       end
 
       it "should match http://www.fanfiction.net" do
         url = "http://www.fanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to eq("ffnet")
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to eq("ffnet")
       end
 
       it "should match www.fanfiction.net" do
         url = "www.fanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to  eq("ffnet")
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to  eq("ffnet")
       end
 
       it "should not match http://adultfanfiction.net" do
         url = "http://adultfanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to be_nil
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to be_nil
       end
 
       it "should not match adultfanfiction.net" do
         url = "adultfanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to be_nil
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to be_nil
       end
 
       it "should not match http://www.adultfanfiction.net" do
         url = "http://www.adultfanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to be_nil
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to be_nil
       end
 
       it "should not match www.adultfanfiction.net" do
         url = "www.adultfanfiction.net"
-        expect(@sp.get_source_if_known(StoryParser::CHAPTERED_STORY_LOCATIONS, url)).to be_nil
+        expect(@sp.get_source_if_known(chaptered_locations, url)).to be_nil
       end
     end
 
@@ -69,42 +73,42 @@ describe StoryParser do
       # SOURCE_LJ = '((live|dead|insane)?journal(fen)?\.com)|dreamwidth\.org'
       it "should match a regular domain on livejournal" do
         url = "http://mydomain.livejournal.com"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a domain with underscores within on livejournal" do
         url = "http://my_domain.livejournal.com"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a folder style link to an individual user on livejournal" do
         url = "http://www.livejournal.com/users/_underscore"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a folder style link to a community on livejournal" do
         url = "http://www.livejournal.com/community/underscore_"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a domain on dreamwidth" do
         url = "http://mydomain.dreamwidth.org"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a domain on deadjournal" do
         url = "http://mydomain.deadjournal.com"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a domain on insanejournal" do
         url = "http://mydomain.insanejournal.com"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
 
       it "should match a folder style link to an individual user on journalfen" do
         url = "http://www.journalfen.net/users/username"
-        expect(@sp.get_source_if_known(StoryParser::KNOWN_STORY_LOCATIONS, url)).to eq("lj")
+        expect(@sp.get_source_if_known(known_locations, url)).to eq("lj")
       end
     end
 

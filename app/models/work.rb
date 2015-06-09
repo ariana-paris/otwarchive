@@ -1256,7 +1256,6 @@ class Work < ApplicationRecord
   scope :by_language, lambda {|lang_id| where('language_id = ?', lang_id)}
 
   # returns an array, must come last
-  # TODO: if you know how to turn this into a scope, please do!
   # find all the works that do not have a tag in the given category (i.e. no fandom, no characters etc.)
   def self.no_tags(tag_category, options = {})
     tags = tag_category.tags

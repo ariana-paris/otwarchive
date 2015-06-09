@@ -486,76 +486,54 @@ class WorksController < ApplicationController
       render(:new_import) && return
     end
 
-    options = build_options(params)
+    if params[:pseuds_to_apply]
+      params[:pseuds_to_apply] = Pseud.find_by_name(params[:pseuds_to_apply])
+    end
+
+    importer = Import::Importer.new(params)
 
     # now let's do the import
-    if params[:import_multiple] == 'works' && @urls.length > 1
-      import_multiple(@urls, options)
-    else # a single work possibly with multiple chapters
-      import_single(@urls, options)
-    end
-  end
+    @works, errors = importer.import(@urls)
 
-  protected
+    if errors.empty?
+      if (@urls.size == 1 && params[:import_multiple] == "works") || params[:import_multiple] == "chapters"
+        @work = @works.first
+        unless @work && @work.save
+          flash.now[:error] = ts("We were only partially able to import this work and couldn't save it. Please review below!")
+          @chapter = @work.chapters.first
+          load_pseuds
+          @series = current_user.series.uniq
+          render :new and return
+        end
 
-  # import a single work (possibly with multiple chapters)
-  def import_single(urls, options)
-    # try the import
-    storyparser = StoryParser.new
-
-    begin
-      @work = if urls.size == 1
-                storyparser.download_and_parse_story(urls.first, options)
-              else
-                storyparser.download_and_parse_chapters_into_story(urls, options)
-              end
-    rescue Timeout::Error
-      flash.now[:error] = ts('Import has timed out. This may be due to connectivity problems with the source site. Please try again in a few minutes, or check Known Issues to see if there are import problems with this site.')
-      render(:new_import) && return
-    rescue StoryParser::Error => exception
-      flash.now[:error] = ts("We couldn't successfully import that work, sorry: %{message}", message: exception.message)
-      render(:new_import) && return
-    end
-
-    unless @work && @work.save
-      flash.now[:error] = ts("We were only partially able to import this work and couldn't save it. Please review below!")
-      @chapter = @work.chapters.first
-      load_pseuds
-      @series = current_user.series.distinct
-      render(:new) && return
-    end
-
-    # Otherwise, we have a saved work, go us
-    send_external_invites([@work])
-    @chapter = @work.first_chapter if @work
-    if @work.posted
-      redirect_to(work_path(@work)) && return
+        send_external_invites(@works)
+        @chapter = @work.first_chapter if @work
+        if @work.posted
+          redirect_to work_path(@work) and return
+        else
+          redirect_to preview_work_path(@work) and return
+        end
+      else
+        # if we got here, we have at least some successfully imported works
+        flash[:notice] = ts("Importing completed successfully for the following works! (But please check the results over carefully!)")
+        send_external_invites(@works)
+      end
     else
-      redirect_to(preview_work_path(@work)) && return
-    end
-  end
-
-  # import multiple works
-  def import_multiple(urls, options)
-    # try a multiple import
-    storyparser = StoryParser.new
-    @works, failed_urls, errors = storyparser.import_from_urls(urls, options)
-
-    # collect the errors neatly, matching each error to the failed url
-    unless failed_urls.empty?
-      error_msgs = 0.upto(failed_urls.length).map { |index| "<dt>#{failed_urls[index]}</dt><dd>#{errors[index]}</dd>" }.join("\n")
+      # Something went wrong
+      # collect the errors, matching each error to the failed url
+      error_msgs = errors.map { |url, url_errors| "<dt>#{url}</dt><dd>#{url_errors}</dd>"}.join("\n")
       flash.now[:error] = "<h3>#{ts('Failed Imports')}</h3><dl>#{error_msgs}</dl>".html_safe
+
+      # if EVERYTHING failed, boo. :( Go back to the import form.
+      if @works.empty?
+        render :new_import and return
+      end
+
     end
 
-    # if EVERYTHING failed, boo. :( Go back to the import form.
-    render(:new_import) && return if @works.empty?
-
-    # if we got here, we have at least some successfully imported works
-    flash[:notice] = ts('Importing completed successfully for the following works! (But please check the results over carefully!)')
-    send_external_invites(@works)
-
-    # fall through to import template
   end
+
+protected
 
   # if we are importing for others, we need to send invitations
   def send_external_invites(works)
@@ -566,7 +544,7 @@ class WorksController < ApplicationController
       @external_authors.each do |external_author|
         external_author.find_or_invite(current_user)
       end
-      message = ' ' + ts('We have notified the author(s) you imported works for. If any were missed, you can also add co-authors manually.')
+      message = " " + ts("We have notified the author(s) you imported works for. If any were missed, you can also add co-authors manually.")
       flash[:notice] ? flash[:notice] += message : flash[:notice] = message
     end
   end
@@ -920,6 +898,7 @@ class WorksController < ApplicationController
 
     {
       pseuds: pseuds_to_apply,
+      import_multiple: params[:import_multiple],
       post_without_preview: params[:post_without_preview],
       importing_for_others: params[:importing_for_others],
       restricted: params[:restricted],
