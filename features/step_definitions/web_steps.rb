@@ -106,7 +106,7 @@ end
 
 Then /^(?:|I )should see "([^"]*)"(?: within "([^"]*)")?$/ do |text, selector|
   with_scope(selector) do
-    page.should have_content(text)
+    expect(page).to have_content(text, wait: 120)
   end
 end
 

@@ -1,48 +1,51 @@
---- 
-http_interactions: 
-- request: 
+---
+http_interactions:
+- request:
     method: get
     uri: http://www.rbreu.de/otwtest/utf8_notspecified.html
-    body: 
+    body:
       encoding: US-ASCII
-      string: ""
-    headers: 
-      Accept: 
-      - "*/*"
-      User-Agent: 
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - '*/*'
+      User-Agent:
       - Ruby
-  response: 
-    status: 
+      Host:
+      - www.rbreu.de
+  response:
+    status:
       code: 200
       message: OK
-    headers: 
-      Date: 
-      - Tue, 30 Sep 2014 02:04:50 GMT
-      Server: 
-      - Apache/2.2.22
-      Last-Modified: 
+    headers:
+      Date:
+      - Mon, 02 Nov 2015 14:18:52 GMT
+      Server:
+      - Apache/2.4.10
+      Last-Modified:
       - Fri, 14 Jan 2011 08:59:57 GMT
-      Etag: 
-      - "\"3ee03ec-115-499caa88b7d40\""
-      Accept-Ranges: 
+      Etag:
+      - '"115-499caa88b7d40"'
+      Accept-Ranges:
       - bytes
-      Content-Length: 
-      - "277"
-      Connection: 
+      Content-Length:
+      - '277'
+      Connection:
       - close
-      Content-Type: 
+      Content-Type:
       - text/html
-    body: 
+    body:
       encoding: ASCII-8BIT
-      string: "<html>\n\
-        <head>\n\
-        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n  <title>Das Ma\xC3\x9F aller Dinge</title>\n\
-        </head>\n\n\
-        <body>\n\
-        <p>This is utf-8 but pretends to be latin-1. Special characters follow:</p>\n\n\
-        <p>\xC3\x84 \xC3\x96 \xC3\x9C \xC3\xA9 \xC3\xA8 \xC3\x88 \xC3\x89 \xC3\xBC \xC3\xB6 \xC3\xA4 \xC3\x9F \xC3\xB1</p>\n\
-        </body>\n\
-        </html>\n"
+      string: !binary |-
+        PGh0bWw+CjxoZWFkPgo8bWV0YSBodHRwLWVxdWl2PSJDb250ZW50LVR5cGUi
+        IGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD1JU08tODg1OS0xIj4KICA8
+        dGl0bGU+RGFzIE1hw58gYWxsZXIgRGluZ2U8L3RpdGxlPgo8L2hlYWQ+Cgo8
+        Ym9keT4KPHA+VGhpcyBpcyB1dGYtOCBidXQgcHJldGVuZHMgdG8gYmUgbGF0
+        aW4tMS4gU3BlY2lhbCBjaGFyYWN0ZXJzIGZvbGxvdzo8L3A+Cgo8cD7DhCDD
+        liDDnCDDqSDDqCDDiCDDiSDDvCDDtiDDpCDDnyDDsTwvcD4KPC9ib2R5Pgo8
+        L2h0bWw+Cg==
     http_version: 
-  recorded_at: Tue, 30 Sep 2014 02:04:51 GMT
+  recorded_at: Mon, 02 Nov 2015 14:18:52 GMT
 recorded_with: VCR 2.5.0
