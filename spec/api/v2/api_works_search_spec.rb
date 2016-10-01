@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "spec_helper"
 require "api/api_helper"
 
@@ -84,4 +85,50 @@ describe "valid work URL request" do
     expect(parsed_body[:works].second[:status]).to eq("not_found")
     expect(parsed_body[:works].second).to include(:messages)
   end
+end
+
+describe "API Work Search" do
+  valid_input = { works: [{ original_url: "123",
+                            title: api_fields["Title"],
+                            creator: "Bar",
+                            fandom: "Testing"},
+                          { original_url: "435",
+                            title: api_fields["Title"],
+                            creator: "Foo",
+                            fandom: "Testing"}] }
+
+  output = { works: [{ original_url: "123",
+                                works: [{ ao3_url: "works/12435", title: "Title", creator: "Author", fandom: "Testing" }]},
+                              { original_url: "435",
+                                works: []}]}
+
+  it "should take a batch of work fields and return works" do
+    post_search_result(valid_input.to_json)
+    assert_equal 200, response.status
+  end
+
+  describe "given a valid request" do
+
+    before :all do
+      parsed_body = post_search_result(valid_input.to_json)
+      @search_results = parsed_body[:search_results]
+    end
+
+    it "should return the original id" do
+      expect(@search_results.first[:original_id]).to eq("123")
+    end
+
+    it "should return an empty result if no matching works are found" do
+      expect(@search_results.second[:works]).to be_empty
+    end
+  end
+
+  it "should match works on parent fandom" do
+
+  end
+
+  it "should complain if it doesn't have all the fields" do
+
+  end
+
 end
