@@ -47,7 +47,7 @@ Feature: Prompt Meme Challenge
     And I should not see "Delete Prompt"
     And I should see "Delete Sign-up"
 
-  Scenario: User can't delete prompt if they don't have more than the minimum 
+  Scenario: User can't delete prompt if they don't have more than the minimum
   number required by the meme
 
   Given I am logged in as "myname1"
