@@ -114,6 +114,7 @@ Given /^the tag wrangler "([^\"]*)" with password "([^\"]*)" is wrangler of "([^
   click_button "Assign"
 end
 
+
 Given /^a tag "([^\"]*)" with(?: (\d+))? comments$/ do |tagname, n_comments|
   tag = Fandom.find_or_create_by_name(tagname)
   step %{I am logged out}
@@ -174,7 +175,7 @@ When /^I select "([^"]*)" for the unsorted tag "([^"]*)"$/ do |type, tagname|
   select(type, :from => "tags[#{tag.id}]")
 end
 
-When /^I check the mass wrangling option for "([^"]*)"$/ do |tagname|
+When /^I check the (?:mass )?wrangling option for "([^"]*)"$/ do |tagname|
   tag = Tag.find_by_name(tagname)
   check("selected_tags_#{tag.id}")
 end
@@ -185,6 +186,10 @@ When /^I edit the tag "([^\"]*)"$/ do |tag|
   within(".header") do
     click_link("Edit")
   end
+end
+
+When(/^I view the tagwranglings page$/) do
+  visit tag_wranglings
 end
 
 When /^I view the tag "([^\"]*)"$/ do |tag|
