@@ -211,7 +211,7 @@ module NavigationHelpers
       tag_wranglings_path
     when /^the "(.*)" fandom relationship page$/i
       fandom_path($1)
-      
+
     # Here is an example that pulls values out of the Regexp:
     #
     #   when /^(.*)'s profile page$/i
