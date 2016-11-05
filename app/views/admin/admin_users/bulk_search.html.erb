@@ -1,0 +1,31 @@
+<div class="admin">
+  <!--Descriptive page name, messages and instructions-->
+  <h2 class="heading"><%= ts("Bulk Email Search") %></h2>
+  <!--/descriptions-->
+
+  <!--main content-->
+  <div class="notice">
+    <p><%= ts("Please enter a list of email addresses to search below. This form will search for <strong>exact</strong> matches.").html_safe %></p>
+  </div>
+
+  <%= form_tag url_for(controller: "admin/admin_users", action: "bulk_search"), method: :get, class: "search", role: "search" do %>
+    <fieldset>
+      <legend><%= ts("Email addresses") %></legend>
+      <dl>
+        <dt class="required"><%= label_tag "emails", ts("Email addresses *") %></dt>
+        <dd class="required"><%= text_area_tag "emails", @emails ? @emails.join("\n") : "", rows: 20, cols: 90, "aria-describedby" => "url-field-description" %>
+          <p class="footnote" id="url-field-description">
+            <%= ts("Emails to find; <strong>one URL per line.</strong>").html_safe %>
+          </p>
+        </dd>
+      </dl>
+    </fieldset>
+
+    <fieldset>
+      <legend><%= ts("Find") %></legend>
+      <p class="submit actions">
+        <%= submit_tag ts("Find") %>
+      </p>
+    </fieldset>
+<% end %>
+</div>
