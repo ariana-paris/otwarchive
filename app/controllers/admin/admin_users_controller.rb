@@ -9,6 +9,13 @@ class Admin::AdminUsersController < ApplicationController
     @users = User.search_by_role(@role, params[:query], :inactive => params[:inactive], :page => params[:page])
   end
 
+  def bulk_search
+    # Currently no default content to populate
+    @emails = params[:emails].split("\n") if params[:emails]
+    flash[:notice] = ts("User was successfully updated.") + @emails
+    redirect_to request.referer || root_path
+  end
+
   # GET admin/users/1
   # GET admin/users/1.xml
   def show

@@ -2,7 +2,7 @@
 Feature: Admin Actions to manage users
   In order to manage user accounts
   As an an admin
-  I want to be able to look up and edit individual users
+  I want to be able to edit individual users
 
   Scenario: Admin can update a user's email address and roles
     Given the following activated user exists
@@ -12,7 +12,7 @@ Feature: Admin Actions to manage users
     When I am logged in as an admin
     And I fill in "query" with "dizmo"
     And I press "Find"
-    Then I should see "FOOdizmo" within "#admin_users_table"
+    Then I should see "dizmo" within "#admin_users_table"
 
     # change user email
     When I fill in "user_email" with "dizmo@fake.com"
