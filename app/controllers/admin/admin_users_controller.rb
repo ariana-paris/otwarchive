@@ -11,9 +11,11 @@ class Admin::AdminUsersController < ApplicationController
 
   def bulk_search
     # Currently no default content to populate
-    @emails = params[:emails].split("\n") if params[:emails]
-    flash[:notice] = ts("User was successfully updated.") + @emails
-    redirect_to request.referer || root_path
+    @emails = params[:emails].split if params[:emails]
+
+    unless @emails.nil?
+      flash[:notice] = ts("Emails searched. #{@emails}")
+    end
   end
 
   # GET admin/users/1
