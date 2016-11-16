@@ -6,15 +6,14 @@ class Admin::AdminUsersController < ApplicationController
     @roles = Role.assignable.uniq
     @role_values = @roles.map{ |role| [role.name.humanize.titlecase, role.name] }
     @role = Role.find_by_name(params[:role]) if params[:role]
-    @users = User.search_by_role(@role, params[:query], :inactive => params[:inactive], :page => params[:page])
+    @users = User.search_by_role(@role, params[:query], inactive: params[:inactive], page: params[:page])
   end
 
   def bulk_search
-    # Currently no default content to populate
+    @roles = Role.assignable.uniq
     @emails = params[:emails].split if params[:emails]
-
-    unless @emails.nil?
-      flash[:notice] = ts("Emails searched. #{@emails}")
+    unless @emails.nil? || @emails.blank?
+      @users, @not_found = User.search_multiple_by_email(@emails, { page: params[:page] })
     end
   end
 
