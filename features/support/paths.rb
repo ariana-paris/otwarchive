@@ -216,7 +216,6 @@ module NavigationHelpers
       when /^the abuse administration page for "(.*)"$/i
         admin_user_path(User.find_by_login($1))
 
-
     # Here is an example that pulls values out of the Regexp:
     #
     #   when /^(.*)'s profile page$/i
