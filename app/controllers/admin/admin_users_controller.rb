@@ -14,6 +14,9 @@ class Admin::AdminUsersController < ApplicationController
     @emails = params[:emails].split if params[:emails]
     unless @emails.nil? || @emails.blank?
       @users, @not_found = User.search_multiple_by_email(@emails, { page: params[:page] })
+      if params[:download_button]
+        flash.notice = "Download"
+      end
     end
   end
 
