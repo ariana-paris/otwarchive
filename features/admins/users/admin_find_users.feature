@@ -47,7 +47,7 @@ Feature: Admin Find Users page
         b@bo3.org
         a@ao3.org
       """
-      And I submit
+      And I press "Find"
     Then I should see "userB"
       And I should see "userA"
       But I should not see "userCB"
@@ -60,14 +60,14 @@ Feature: Admin Find Users page
         a@ao3.org
         c@co3.org
       """
-      And I submit
+      And I press "Find"
     Then I should see "2 found"
       And I should see "1 not found"
 
   Scenario: The Bulk Email Search page should find an exact match
     When I go to the Bulk Email Search page
       And I fill in "Email addresses *" with "b@bo3.org"
-      And I submit
+      And I press "Find"
     Then I should see "userB"
       But I should not see "userA"
       And I should not see "userCB"
