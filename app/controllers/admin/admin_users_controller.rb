@@ -1,4 +1,5 @@
 class Admin::AdminUsersController < ApplicationController
+  include ExportsHelper
 
   before_filter :admin_only
 
@@ -13,9 +14,12 @@ class Admin::AdminUsersController < ApplicationController
     @roles = Role.assignable.uniq
     @emails = params[:emails].split if params[:emails]
     unless @emails.nil? || @emails.blank?
-      @users, @not_found = User.search_multiple_by_email(@emails, { page: params[:page] })
+      all_users, @not_found = User.search_multiple_by_email(@emails)
+      @users = all_users.paginate(page: params[:page] || 1)
       if params[:download_button]
-        flash.notice = "Download"
+        header = [["Login", "Email"]]
+        array = all_users.map { |u| [u.login, u.email] }
+        send_csv_data(header + array, "bulk_user_search_#{Time.now.strftime('%Y-%m-%d-%H%M')}.csv")
       end
     end
   end

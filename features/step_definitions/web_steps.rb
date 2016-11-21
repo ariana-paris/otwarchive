@@ -296,8 +296,9 @@ end
 Then /^I should download a ([^"]*) file with the header row "(.*?)"$/ do |type, header|
   page.response_headers['Content-Disposition'].should =~ /attachment; filename=.*?\.#{type}/i
   page.response_headers['Content-Type'].should =~ /\/#{type}/i
-  csv = CSV.parse(page.text) # array of arrays
-  expect(csv.first.first).to eq(header)
+  body_without_bom = page.body.encode("UTF-8").gsub!("\xEF\xBB\xBF", "")
+  csv = CSV.parse(body_without_bom, col_sep: "\t") # array of arrays
+  expect(csv.first.join(" ")).to eq(header)
 end
 
 Then /^show me the page$/ do

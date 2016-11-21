@@ -71,3 +71,14 @@ Feature: Admin Find Users page
     Then I should see "userB"
       But I should not see "userA"
       And I should not see "userCB"
+
+   Scenario: Admins can download a CSV of found emails
+     When I go to the Bulk Email Search page
+      And I fill in "Email addresses *" with
+      """
+        b@bo3.org
+        a@ao3.org
+        c@co3.org
+      """
+      And I press "Download CSV"
+     Then I should download a csv file with the header row "Login Email"

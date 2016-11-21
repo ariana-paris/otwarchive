@@ -275,11 +275,11 @@ class User < ActiveRecord::Base
     users.paginate(page: options[:page] || 1)
   end
 
-  def self.search_multiple_by_email(emails = [], options = {})
+  def self.search_multiple_by_email(emails = [])
     users = User.where(email: emails)
     found_emails = users.map(&:email)
     not_found = emails - found_emails
-    [users.paginate(page: options[:page] || 1), not_found]
+    [users, not_found]
   end
 
   ### AUTHENTICATION AND PASSWORDS
