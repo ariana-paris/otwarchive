@@ -293,9 +293,11 @@ Then /^(?:|I )should have the following query string:$/ do |expected_pairs|
   end
 end
 
-Then /^I should get a file with ending and type ([^\"]*)$/ do |type|
-  page.response_headers['Content-Disposition'].should =~ Regexp.new("filename=.*?\.#{type}")
-  page.response_headers['Content-Type'].should =~ Regexp.new("/#{type}")
+Then /^I should download a ([^"]*) file with the header row "(.*?)"$/ do |type, header|
+  page.response_headers['Content-Disposition'].should =~ /attachment; filename=.*?\.#{type}/i
+  page.response_headers['Content-Type'].should =~ /\/#{type}/i
+  csv = CSV.parse(page.text) # array of arrays
+  expect(csv.first.first).to eq(header)
 end
 
 Then /^show me the page$/ do
