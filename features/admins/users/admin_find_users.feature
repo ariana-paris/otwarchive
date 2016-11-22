@@ -81,4 +81,4 @@ Feature: Admin Find Users page
         c@co3.org
       """
       And I press "Download CSV"
-     Then I should download a csv file with the header row "Login Email"
+     Then I should download a csv file with 4 rows and the header row "Email Username"

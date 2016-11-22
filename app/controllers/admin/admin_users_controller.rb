@@ -17,9 +17,11 @@ class Admin::AdminUsersController < ApplicationController
       all_users, @not_found = User.search_multiple_by_email(@emails)
       @users = all_users.paginate(page: params[:page] || 1)
       if params[:download_button]
-        header = [["Login", "Email"]]
-        array = all_users.map { |u| [u.login, u.email] }
-        send_csv_data(header + array, "bulk_user_search_#{Time.now.strftime('%Y-%m-%d-%H%M')}.csv")
+        header = [["Email", "Username"]]
+        found = all_users.map { |u| [u.email, u.login] }
+        not_found = @not_found.map { |email| [email, ""]}
+        send_csv_data(header + found + not_found, "bulk_user_search_#{Time.now.strftime('%Y-%m-%d-%H%M')}.csv")
+        flash.now[:notice] = ts("Downloaded CSV")
       end
     end
   end
