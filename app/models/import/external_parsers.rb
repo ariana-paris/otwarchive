@@ -32,13 +32,21 @@ module Import::ExternalParsers
   SOURCE_EFICTION = 'viewstory\.php'
   SOURCE_QUOTEV = 'quotev\.com'
 
+  # time out if we can't download fast enough
+  STORY_DOWNLOAD_TIMEOUT = 60
+  MAX_CHAPTER_COUNT = 200
+
+  # To check for duplicate chapters, take a slice this long out of the story
+  # (in characters)
+  DUPLICATE_CHAPTER_LENGTH = 10000
+
   #####################################
   # LIVEJOURNAL                       #
   #####################################
   def parse_author_from_lj(location)
     email = ""
-    lj_name = $2
-    site_name = $3
+    lj_name, site_name = location.scan(/^(?:http:\/\/)?(.*)\.(livejournal\.com|dreamwidth\.org|insanejournal\.com|journalfen\.net)/)[0]
+    # site_name = $3
     if lj_name == "community"
       # whups
       post_text = download_text(location)
@@ -90,7 +98,7 @@ module Import::ExternalParsers
   # Assumes that we have downloaded the story from one of those equivalents (ie, we've downloaded
   # it in format=light which is a stripped-down plaintext version.)
   #
-  def parse_story_from_lj(story)
+  def parse_story_from_lj(_story, detect_tags = true)
     work_params = { chapter_attributes: {} }
 
     # in LJ "light" format, the story contents are in the second div
@@ -106,7 +114,7 @@ module Import::ExternalParsers
     work_params[:chapter_attributes][:content] = storytext
     work_params[:title] = @doc.css("title").inner_html
     work_params[:title].gsub! /^[^:]+: /, ""
-    work_params.merge!(scan_text_for_meta(storytext))
+    work_params.merge!(scan_text_for_meta(storytext, detect_tags))
 
     date = @doc.css("time.b-singlepost-author-date")
     unless date.empty?
@@ -121,7 +129,7 @@ module Import::ExternalParsers
   # DREAMWIDTH                        #
   #####################################
 
-  def parse_story_from_dw(story)
+  def parse_story_from_dw(_story, detect_tags = true)
     work_params = { chapter_attributes: {} }
 
     body = @doc.css("body")
@@ -144,7 +152,7 @@ module Import::ExternalParsers
     work_params[:chapter_attributes][:content] = storytext
     work_params[:title] = @doc.css("title").inner_html
     work_params[:title].gsub! /^[^:]+: /, ""
-    work_params.merge!(scan_text_for_meta(storytext))
+    work_params.merge!(scan_text_for_meta(storytext, detect_tags))
 
     font_blocks = @doc.xpath('//font')
     unless font_blocks.empty?
@@ -164,7 +172,7 @@ module Import::ExternalParsers
   # DEVIANTART                        #
   #####################################
 
-  def parse_story_from_deviantart(story)
+  def parse_story_from_deviantart(_story, detect_tags = true)
     work_params = { chapter_attributes: {} }
     storytext = ""
     notes = ""
@@ -210,7 +218,7 @@ module Import::ExternalParsers
     notes = clean_storytext(notes)
     work_params[:notes] = notes
 
-    work_params.merge!(scan_text_for_meta(notes))
+    work_params.merge!(scan_text_for_meta(notes, detect_tags))
     work_params[:title] = title
 
     body.css("div.dev-title-container h1 a").each do |node|
@@ -252,35 +260,32 @@ module Import::ExternalParsers
   # grab all the chapters of a story from an efiction-based site
   def download_chaptered_from_efiction(location)
     @chapter_contents = []
-    if location.match(/^(.*)\/.*viewstory\.php.*sid=(\d+)($|&)/i)
-      site = $1
-      storyid = $2
-      chapnum = 1
-      last_body = ""
-      Timeout::timeout(STORY_DOWNLOAD_TIMEOUT) {
-        loop do
-          url = "#{site}/viewstory.php?action=printable&sid=#{storyid}&chapter=#{chapnum}"
-          body = download_with_timeout(url)
-          # get a section to check that this isn't a duplicate of previous chapter
-          body_to_check = body.slice(10,DUPLICATE_CHAPTER_LENGTH)
-          if body.nil? || body_to_check == last_body || chapnum > MAX_CHAPTER_COUNT || body.match(/<div class='chaptertitle'> by <\/div>/) || body.match(/Access denied./) || body.match(/Chapter : /)
-            break
-          end
-          # save the value to check for duplicate chapter
-          last_body = body_to_check
-
-          # clean up the broken head in many efiction printable sites
-          body.sub!('</style>', '</style></head>') unless body.match('</head>')
-          @chapter_contents << body
-          chapnum = chapnum + 1
+    site, storyid = location.scan(/^(.*)\/.*viewstory\.php.*sid=(\d+)($|&)/i)[0]
+    chapnum = 1
+    last_body = ""
+    Timeout::timeout(STORY_DOWNLOAD_TIMEOUT) {
+      loop do
+        url = "#{site}/viewstory.php?action=printable&sid=#{storyid}&chapter=#{chapnum}"
+        body = download_with_timeout(url)
+        # get a section to check that this isn't a duplicate of previous chapter
+        body_to_check = body.slice(10,DUPLICATE_CHAPTER_LENGTH)
+        if body.nil? || body_to_check == last_body || chapnum > MAX_CHAPTER_COUNT || body.match(/<div class='chaptertitle'> by <\/div>/) || body.match(/Access denied./) || body.match(/Chapter : /)
+          break
         end
-      }
-    end
+        # save the value to check for duplicate chapter
+        last_body = body_to_check
+
+        # clean up the broken head in many efiction printable sites
+        body.sub!('</style>', '</style></head>') unless body.match('</head>')
+        @chapter_contents << body
+        chapnum = chapnum + 1
+      end
+    }
     @chapter_contents
   end
 
   def parse_story_from_modified_efiction(story, site = "")
-    work_params = {:chapter_attributes => {}}
+    work_params = { chapter_attributes: {} }
     storytext = @doc.css("div.chapter").inner_html
     storytext = clean_storytext(storytext)
     work_params[:chapter_attributes][:content] = storytext
@@ -356,11 +361,11 @@ module Import::ExternalParsers
   #####################################
 
   def download_chaptered_from_ffnet(location)
-    raise Error, "Sorry, Fanfiction.net does not allow imports from their site."
+    raise Import::StoryParser::Error, "Sorry, Fanfiction.net does not allow imports from their site."
   end
 
   def download_chaptered_from_quotev(_location)
-    raise Error, "Sorry, Quotev.com does not allow imports from their site."
+    raise Import::StoryParser::Error, "Sorry, Quotev.com does not allow imports from their site."
   end
 
 

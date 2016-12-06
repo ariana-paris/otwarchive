@@ -47,98 +47,6 @@ class Import::StoryParser
 
 
   # Import many stories
-  def import_many(urls, options = {})
-    # Try to get the works
-    works = []
-    failed_urls = []
-    errors = []
-    @options = options
-    urls.each do |url|
-      begin
-        response = download_and_parse_work(url, options)
-        work = response[:work]
-        if response[:status] == :created
-          if work && work.save
-            work.chapters.each(&:save)
-            works << work
-          else
-            failed_urls << url
-            errors << work.errors.values.join(", ")
-            work.delete if work
-          end
-        elsif response[:status] == :already_imported
-          raise StoryParser::Error, response[:message]
-        end
-      rescue Timeout::Error
-        failed_urls << url
-        errors << "Import has timed out. This may be due to connectivity problems with the source site. Please try again in a few minutes, or check Known Issues to see if there are import problems with this site."
-        work.delete if work
-      rescue Error => exception
-        failed_urls << url
-        errors << "We couldn't successfully import that work, sorry: #{exception.message}"
-        work.delete if work
-      end
-    end
-    [works, failed_urls, errors]
-  end
-
-  # Downloads a story and passes it on to the parser.
-  # If the URL of the story is from a site for which we have special rules
-  # (eg, downloading from a livejournal clone, you want to use ?format=light
-  # to get a nice and consistent post format), it will pre-process the url
-  # according to the rules for that site.
-  def download_and_parse_work(location, options = {})
-    status = :created
-    message = ""
-    work = Work.find_by_url(location)
-    if work.nil?
-      @options = options
-      source = get_source_if_known(CHAPTERED_STORY_LOCATIONS, location)
-      if source.nil?
-        story = download_text(location)
-        work = parse_story(story, location, options)
-      else
-        work = download_and_parse_chaptered_story(source, location, options)
-      end
-    else
-      status = :already_imported
-      message = "A work has already been imported from #{location}."
-    end
-    {
-      status: status,
-      message: message,
-      work: work
-    }
-  end
-
-  # Given an array of urls for chapters of a single story,
-  # download them all and combine into a single work
-  def import_chapters_into_story(locations, options = {})
-    status = :created
-    work = Work.find_by_url(locations.first)
-    if work.nil?
-      chapter_contents = []
-      @options = options
-      locations.each do |location|
-        chapter_contents << download_text(location)
-      end
-      work = parse_chapters_into_story(locations.first, chapter_contents, options)
-      message = "Successfully created work \"" + work.title + "\"."
-    else
-      status = :already_imported
-      message = "A work has already been imported from #{locations.first}."
-    end
-    {
-      status: status,
-      message: message,
-      work: work
-    }
-  end
-
-
-  ### OLD PARSING METHODS
-
-  # Import many stories
   def import_from_urls(urls, options = {})
     # Try to get the works
     works = []
@@ -180,11 +88,10 @@ class Import::StoryParser
     source = get_source_if_known(CHAPTERED_STORY_LOCATIONS, location)
     if source.nil?
       story = download_text(location)
-      work = parse_story(story, location, options)
+      parse_story(story, location, options)
     else
-      work = download_and_parse_chaptered_story(source, location, options)
+      download_and_parse_chaptered_story(source, location, options)
     end
-    work
   end
 
   # Given an array of urls for chapters of a single story,
@@ -299,7 +206,6 @@ class Import::StoryParser
     # handle importing works for others
     # build an external creatorship for each author
     if options[:importing_for_others]
-      temp = parse_author(location, options[:external_author_name], options[:external_author_email])
       external_author_names = options[:external_author_names] || parse_author(location, options[:external_author_name], options[:external_author_email])
       # convert to an array if not already one
       external_author_names = [external_author_names] if external_author_names.is_a?(ExternalAuthorName)
@@ -360,23 +266,23 @@ class Import::StoryParser
 
   def parse_author_common(email, name)
     if name.present? && email.present?
-      # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
-      name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
-      external_author_name = name
-      external_author = ExternalAuthor.find_or_create_by_email(email)
-      unless name.blank?
-        external_author_name = ExternalAuthorName.where(name: name, external_author_id: external_author.id).first ||
+    # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
+    name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
+    external_author_name = name
+    external_author = ExternalAuthor.find_or_create_by_email(email)
+    unless name.blank?
+      external_author_name = ExternalAuthorName.where(name: name, external_author_id: external_author.id).first ||
           ExternalAuthorName.new(name: name)
-        external_author.external_author_names << external_author_name
-        external_author.save
-      end
+      external_author.external_author_names << external_author_name
+      external_author.save
+    end
       external_author_name
     else
       messages = []
       messages << "No author name specified" if name.blank?
       messages << "No author email specified" if email.blank?
       raise Error, messages.join("\n")
-    end
+  end
   end
 
   def get_chapter_from_work_params(work_params)
@@ -564,7 +470,7 @@ class Import::StoryParser
     Timeout.timeout(STORY_DOWNLOAD_TIMEOUT) do
       resp = open(location)
       resp.last_modified
-    end
+  end
   end
 
   def get_source_if_known(known_sources, location)
