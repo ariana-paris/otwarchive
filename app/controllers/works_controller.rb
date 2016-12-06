@@ -506,10 +506,12 @@ class WorksController < ApplicationController
           redirect_to preview_work_path(@work) and return
         end
       else
-        # if we got here, we have at least some successfully imported works
+        # We have at least some successfully imported works - send invitations if this an archivist import
         flash[:notice] = ts("Importing completed successfully for the following works! (But please check the results over carefully!)")
-        message = importer.send_external_invites(@works, current_user)
-        flash[:notice] += message
+        if params[:importing_for_others]
+          message = importer.send_external_invites(@works, current_user)
+          flash[:notice] += message
+        end
       end
     else
       # Something went wrong
