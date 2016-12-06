@@ -498,7 +498,7 @@ class WorksController < ApplicationController
     if errors.empty?
       if (@urls.size == 1 && params[:import_multiple] == "works") || params[:import_multiple] == "chapters"
         @work = @works.first
-        send_external_invites(@works)
+        flash[:notice] = importer.send_external_invites(@works, current_user)
         @chapter = @work.first_chapter if @work
         if @work.posted
           redirect_to work_path(@work) and return
@@ -508,7 +508,8 @@ class WorksController < ApplicationController
       else
         # if we got here, we have at least some successfully imported works
         flash[:notice] = ts("Importing completed successfully for the following works! (But please check the results over carefully!)")
-        send_external_invites(@works)
+        message = importer.send_external_invites(@works, current_user)
+        flash[:notice] += message
       end
     else
       # Something went wrong
@@ -530,20 +531,6 @@ class WorksController < ApplicationController
   end
 
 protected
-
-  # if we are importing for others, we need to send invitations
-  def send_external_invites(works)
-    return unless params[:importing_for_others]
-
-    @external_authors = works.collect(&:external_authors).flatten.uniq
-    unless @external_authors.empty?
-      @external_authors.each do |external_author|
-        external_author.find_or_invite(current_user)
-      end
-      message = " " + ts("We have notified the author(s) you imported works for. If any were missed, you can also add co-authors manually.")
-      flash[:notice] ? flash[:notice] += message : flash[:notice] = message
-    end
-  end
 
   # check to see if the work is being added / has been added to a moderated collection, then let user know that
   def in_moderated_collection

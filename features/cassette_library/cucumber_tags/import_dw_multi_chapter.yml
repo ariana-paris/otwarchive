@@ -20,92 +20,92 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - nginx/1.1.19
       Date:
-      - Thu, 09 Jun 2016 23:05:36 GMT
+      - Mon, 05 Dec 2016 13:47:05 GMT
       Content-Type:
       - text/html; charset=utf-8
       Content-Length:
-      - '3001'
+      - '3069'
       Connection:
       - keep-alive
+      Server:
+      - Apache/2.4.7 (Ubuntu) mod_apreq2-20090110/2.8.0 mod_perl/2.0.8 Perl/v5.18.2
       Set-Cookie:
-      - ljuniq=cXhZLRuyku1SaUH%3A1465513536; domain=.dreamwidth.org; path=/; expires=Mon,
-        08-Aug-2016 23:05:36 GMT
+      - ljuniq=VHwD2lOplOnl0Hk%3A1480945625; domain=.dreamwidth.org; path=/; expires=Fri,
+        03-Feb-2017 13:47:05 GMT
       Vary:
       - Accept-Encoding
     body:
-      encoding: UTF-8
-      string: "\n<!DOCTYPE html>\n<html>\n<head>\n<link rel=\"home\" title=\"Home\"
-        href=\"http://www.dreamwidth.org/\" />\n<link rel=\"contents\" title=\"Site
-        Map\" href=\"http://www.dreamwidth.org/site/\" />\n<link rel=\"help\" title=\"Technical
-        Support\" href=\"http://www.dreamwidth.org/support/\" /><style>\n    #Comments
-        q { padding-left: 2.5em; font-style: italic; }\n</style><title>rebecca2525
+      encoding: ASCII-8BIT
+      string: "\n<!DOCTYPE html>\n<html>\n<head>\n<meta name=\"viewport\" content=\"width=device-width,
+        initial-scale=1\">\n<link rel=\"home\" title=\"Home\" href=\"http://www.dreamwidth.org/\"
+        />\n<link rel=\"contents\" title=\"Site Map\" href=\"http://www.dreamwidth.org/site/\"
+        />\n<link rel=\"help\" title=\"Technical Support\" href=\"http://www.dreamwidth.org/support/\"
+        /><style>\n    #Comments q { padding-left: 2.5em; font-style: italic; }\n</style><title>rebecca2525
         | [TEST][FIC] Importing Test</title>\n\n            <script type=\"text/javascript\">\n
         \               var Site;\n                if (!Site)\n                    Site
-        = {};\n\n                var site_p = {\"user_domain\": \"dreamwidth.org\",\n\"iconprefix\":
-        \"http://v.dreamwidth.org\",\n\"has_remote\": 0,\n\"ctx_popup_icons\": 1,\n\"inbox_update_poll\":
-        1,\n\"esn_async\": 1,\n\"ctx_popup_userhead\": 1,\n\"ctx_popup\": 1,\n\"currentJournalBase\":
-        \"http://rebecca2525.dreamwidth.org\",\n\"media_embed_enabled\": 1,\n\"statprefix\":
-        \"http://s.dreamwidth.org/stc\",\n\"currentJournal\": \"rebecca2525\",\n\"siteroot\":
-        \"http://www.dreamwidth.org\",\n\"imgprefix\": \"http://s.dreamwidth.org/img\"};\n
-        \               var site_k = [\"user_domain\", \"iconprefix\", \"has_remote\",
-        \"ctx_popup_icons\", \"inbox_update_poll\", \"esn_async\", \"ctx_popup_userhead\",
-        \"ctx_popup\", \"currentJournalBase\", \"media_embed_enabled\", \"statprefix\",
-        \"currentJournal\", \"siteroot\", \"imgprefix\"];\n                for (var
-        i = 0; site_k.length > i; i++) {\n                    Site[site_k[i]] = site_p[site_k[i]];\n
-        \               }\n           </script>\n        <link rel=\"stylesheet\"
-        type=\"text/css\" href=\"http://s.dreamwidth.org/stc/??lj_base.css,esn.css,jquery/jquery.ui.core.css,jquery/jquery.ui.tooltip.css,jquery.contextualhover.css,lj_base-app.css,base-colors-light.css,lynx/lynx.css?v=1448242038\"
-        />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://s.dreamwidth.org/stc/??jquery/jquery.ui.button.css,jquery/jquery.ui.dialog.css,jquery.commentmanage.css,jquery/jquery.ui.theme.smoothness.css,entrypage.css,siteviews/lynx.css?v=1426479404\"
-        />\n<script type=\"text/javascript\" src=\"//s.dreamwidth.org/js/??jquery/jquery-1.8.3.js,dw/dw-core.js,jquery/jquery.ui.core.js,jquery/jquery.ui.widget.js,jquery/jquery.ui.tooltip.js,jquery.ajaxtip.js,jquery/jquery.ui.position.js,jquery.hoverIntent.js,jquery.contextualhover.js?v=1440903277\"></script>\n<script
-        type=\"text/javascript\" src=\"//s.dreamwidth.org/js/??jquery.quickreply.js,jquery.threadexpander.js,jquery/jquery.ui.button.js,jquery/jquery.ui.dialog.js,jquery.commentmanage.js,jquery.esn.js,jquery.poll.js,journals/jquery.tag-nav.js,jquery.mediaplaceholder.js?v=1460259022\"></script>\n\n<meta
+        = {};\n\n                var site_p = {\"has_remote\": 0,\n\"ctx_popup\":
+        1,\n\"esn_async\": 1,\n\"ctx_popup_icons\": 1,\n\"iconprefix\": \"http://v.dreamwidth.org\",\n\"media_embed_enabled\":
+        1,\n\"user_domain\": \"dreamwidth.org\",\n\"siteroot\": \"http://www.dreamwidth.org\",\n\"imgprefix\":
+        \"http://www.dreamwidth.org/img\",\n\"currentJournal\": \"rebecca2525\",\n\"ctx_popup_userhead\":
+        1,\n\"inbox_update_poll\": 1,\n\"statprefix\": \"http://www.dreamwidth.org/stc\",\n\"currentJournalBase\":
+        \"http://rebecca2525.dreamwidth.org\"};\n                var site_k = [\"has_remote\",
+        \"ctx_popup\", \"esn_async\", \"ctx_popup_icons\", \"iconprefix\", \"media_embed_enabled\",
+        \"user_domain\", \"siteroot\", \"imgprefix\", \"currentJournal\", \"ctx_popup_userhead\",
+        \"inbox_update_poll\", \"statprefix\", \"currentJournalBase\"];\n                for
+        (var i = 0; site_k.length > i; i++) {\n                    Site[site_k[i]]
+        = site_p[site_k[i]];\n                }\n           </script>\n        <link
+        rel=\"stylesheet\" type=\"text/css\" href=\"http://www.dreamwidth.org/stc/??lj_base.css,esn.css,jquery/jquery.ui.core.css,jquery/jquery.ui.tooltip.css,jquery.contextualhover.css,lj_base-app.css,base-colors-light.css,lynx/lynx.css?v=1448242038\"
+        />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.dreamwidth.org/stc/??jquery/jquery.ui.button.css,jquery/jquery.ui.dialog.css,jquery.commentmanage.css,jquery/jquery.ui.theme.smoothness.css,entrypage.css,siteviews/lynx.css?v=1426479404\"
+        />\n<script type=\"text/javascript\" src=\"//www.dreamwidth.org/js/??jquery/jquery-1.8.3.js,dw/dw-core.js,jquery/jquery.ui.core.js,jquery/jquery.ui.widget.js,jquery/jquery.ui.tooltip.js,jquery.ajaxtip.js,jquery/jquery.ui.position.js,jquery.hoverIntent.js,jquery.contextualhover.js?v=1480442558\"></script>\n<script
+        type=\"text/javascript\" src=\"//www.dreamwidth.org/js/??jquery.quickreply.js,jquery.threadexpander.js,jquery/jquery.ui.button.js,jquery/jquery.ui.dialog.js,jquery.commentmanage.js,jquery.esn.js,jquery.poll.js,journals/jquery.tag-nav.js,jquery.mediaplaceholder.js?v=1460259022\"></script>\n\n<meta
         http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n<link
         rel=\"meta\" type=\"application/rdf+xml\" title=\"FOAF\" href=\"http://rebecca2525.dreamwidth.org/data/foaf\"
         />\n<link rel=\"help\" href=\"http://www.dreamwidth.org/support/faq\" />\n<link
         rel=\"apple-touch-icon\" href=\"//www.dreamwidth.org/apple-touch-icon.png\"
-        />\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"
-        />\n<link rel=\"prev\" href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=3506&journal=rebecca2525\"
+        />\n<meta property=\"og:image:width\" content=\"363\"/>\n<meta property=\"og:image:height\"
+        content=\"363\"/>\n<meta http-equiv=\"Content-Type\" content=\"text/html;
+        charset=utf-8\" />\n<link rel=\"prev\" href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=3506&journal=rebecca2525\"
         />\n<link rel=\"next\" href=\"http://www.dreamwidth.org/go?dir=next&format=light&itemid=3506&journal=rebecca2525\"
         />\n<link rel=\"canonical\" href=\"http://rebecca2525.dreamwidth.org/3506.html\"
         />\n<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting\nvar
-        LJ_cmtinfo = {\"canAdmin\": \"\",\n\"form_auth\": \"c0:1465513200:336:86400:N25EIFTKcR-0-cXhZLRuyku1SaUH:2327168cd96cfe8807888fb17706028b\",\n\"canSpam\":
-        1,\n\"journal\": \"rebecca2525\",\n\"remote\": \"\"}\n</script>\n</head>\n\n<body
-        >\n\n<div role=\"main\" id=\"content\">\n    <div class=\"row\">\n        <div
-        class=\"columns large-12\">\n        <h1></h1>\n        </div>\n    </div>\n\n\n
-        \   <div class=\"row\"><div class=\"large-12 columns\"><div class=\"entry-wrapper
-        entry-wrapper-odd security-public restrictions-none journal-type-P poster-rebecca2525
-        journal-rebecca2525 has-userpic has-subject\" id=\"entry-wrapper-3506\">\n<div
-        class=\"separator separator-before\"><div class=\"inner\"></div></div>\n<div
-        class=\"entry\" id=\"entry-3506\">\n<div class=\"inner\">\n<div class=\"header\">\n<div
-        class=\"inner\">\n<div class=\"userpic\"><a href=\"http://rebecca2525.dreamwidth.org/icons\"><img
-        src=\"http://v.dreamwidth.org/622680/549029\" title=\"rebecca2525: (Default)
-        (Abby Sciuto from NCIS with the word &quot;geek&quot;)\" alt=\"rebecca2525:
-        Abby Sciuto from NCIS with the word &quot;geek&quot; (Default)\"  height=\"100\"
-        width=\"100\" /></a></div>\n<div class=\"poster-info\">\n<span class=\"poster
-        entry-poster \">rebecca2525 (<span lj:user='rebecca2525' style='white-space:
+        LJ_cmtinfo = {\"remote\": \"\",\n\"canAdmin\": \"\",\n\"canSpam\": 1,\n\"form_auth\":
+        \"c0:1480942800:2825:86400:DNzJlawy7W-0-VHwD2lOplOnl0Hk:98685d40d60a17f448d2b7dc16403324\",\n\"journal\":
+        \"rebecca2525\"}\n</script>\n</head>\n\n<body >\n\n<div role=\"main\" id=\"content\">\n
+        \   <div class=\"row\">\n        <div class=\"columns large-12\">\n        <h1></h1>\n
+        \       </div>\n    </div>\n\n\n    <div class=\"row\"><div class=\"large-12
+        columns\"><div class=\"entry-wrapper entry-wrapper-odd security-public restrictions-none
+        journal-type-P poster-rebecca2525 journal-rebecca2525 has-userpic has-subject\"
+        id=\"entry-wrapper-3506\">\n<div class=\"separator separator-before\"><div
+        class=\"inner\"></div></div>\n<div class=\"entry\" id=\"entry-3506\">\n<div
+        class=\"inner\">\n<div class=\"header\">\n<div class=\"inner\">\n<div class=\"userpic\"><a
+        href=\"http://rebecca2525.dreamwidth.org/icons\"><img src=\"http://v.dreamwidth.org/622680/549029\"
+        title=\"rebecca2525: (Default) (Abby Sciuto from NCIS with the word &quot;geek&quot;)\"
+        alt=\"rebecca2525: Abby Sciuto from NCIS with the word &quot;geek&quot; (Default)\"
+        \ height=\"100\" width=\"100\" /></a></div>\n<div class=\"poster-info\">\n<span
+        class=\"poster entry-poster \">rebecca2525 (<span lj:user='rebecca2525' style='white-space:
         nowrap;' class='ljuser'><a href='http://rebecca2525.dreamwidth.org/profile'><img
-        src='http://s.dreamwidth.org/img/silk/identity/user.png' alt='[personal profile]
-        ' width='17' height='17' style='vertical-align: text-bottom; border: 0; padding-right:
-        1px;' /></a><a href='http://rebecca2525.dreamwidth.org/'><b>rebecca2525</b></a></span>)
+        src='http://www.dreamwidth.org/img/silk/identity/user.png' alt='[personal
+        profile] ' width='17' height='17' style='vertical-align: text-bottom; border:
+        0; padding-right: 1px;' /></a><a href='http://rebecca2525.dreamwidth.org/'><b>rebecca2525</b></a></span>)
         wrote</span><span class=\"datetime\"><span class=\"date\"><a href=\"/2000/\">2000</a>-<a
         href=\"/2000/01/\">01</a>-<a href=\"/2000/01/10/\">10</a></span> <span class=\"time\">03:14
         pm</span></span></div>\n</div>\n<div class=\"action-box\">\n<div class=\"inner\">\n<ul
         class=\"entry-management-links icon-links\"><li class=\"link link_prev first-item\">
         <a href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=3506&journal=rebecca2525\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Previous Entry\" title=\"Previous
-        Entry\" src=\"//s.dreamwidth.org/img/silk/entry/previous.png\"  /></a></li>\n<li
+        Entry\" src=\"//www.dreamwidth.org/img/silk/entry/previous.png\"  /></a></li>\n<li
         class=\"link mem_add\"><a href=\"http://www.dreamwidth.org/tools/memadd?journal=rebecca2525&amp;itemid=3506\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Add Memory\" title=\"Add
-        Memory\" src=\"//s.dreamwidth.org/img/silk/entry/memories_add.png\"  /></a></li>\n<li
+        Memory\" src=\"//www.dreamwidth.org/img/silk/entry/memories_add.png\"  /></a></li>\n<li
         class=\"link tell_friend\"><a href=\"http://www.dreamwidth.org/tools/tellafriend?journal=rebecca2525&amp;itemid=3506\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Share This Entry\" title=\"Share
-        This Entry\" src=\"//s.dreamwidth.org/img/silk/entry/tellafriend.png\"  /></a></li>\n<li
+        This Entry\" src=\"//www.dreamwidth.org/img/silk/entry/tellafriend.png\"  /></a></li>\n<li
         class=\"link link_next\"> <a href=\"http://www.dreamwidth.org/go?dir=next&format=light&itemid=3506&journal=rebecca2525\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Next Entry\" title=\"Next
-        Entry\" src=\"//s.dreamwidth.org/img/silk/entry/next.png\"  /></a></li>\n</ul></div>\n</div>\n</div>\n<div
+        Entry\" src=\"//www.dreamwidth.org/img/silk/entry/next.png\"  /></a></li>\n</ul></div>\n</div>\n</div>\n<div
         class=\"currents\">\n<div class=\"metadata bottom-metadata\">\n<ul>\n<li id=\"metadata-mood\"><span
-        class=\"metadata-label metadata-label-mood\">Current Mood:</span>  <img src=\"https://s.dreamwidth.org/img/mood/bunnies-black/curious.gif\"
+        class=\"metadata-label metadata-label-mood\">Current Mood:</span>  <img src=\"https://www.dreamwidth.org/img/mood/bunnies-black/curious.gif\"
         title=\"\" alt=\"\"  height=\"30\" width=\"17\" /> <span class=\"metadata-item
         metadata-item-mood\">curious</span></li>\n<li id=\"metadata-location\"><span
         class=\"metadata-label metadata-label-location\">Current Location:</span>
@@ -147,7 +147,7 @@ http_interactions:
         \   <div id='statistics' style='text-align: left; font-size:0; line-height:0;
         height:0; overflow:hidden;'></div></div></div>\n</body>\n</html>"
     http_version: 
-  recorded_at: Thu, 09 Jun 2016 23:05:36 GMT
+  recorded_at: Mon, 05 Dec 2016 13:47:05 GMT
 - request:
     method: get
     uri: http://rebecca2525.dreamwidth.org/4024.html?format=light
@@ -168,91 +168,92 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - nginx/1.1.19
       Date:
-      - Thu, 09 Jun 2016 23:05:36 GMT
+      - Mon, 05 Dec 2016 13:47:06 GMT
       Content-Type:
       - text/html; charset=utf-8
       Content-Length:
-      - '2878'
+      - '2942'
       Connection:
       - keep-alive
+      Server:
+      - Apache/2.4.7 (Ubuntu) mod_apreq2-20090110/2.8.0 mod_perl/2.0.8 Perl/v5.18.2
       Set-Cookie:
-      - ljuniq=Mr6LxootZRA0Cw2%3A1465513536; domain=.dreamwidth.org; path=/; expires=Mon,
-        08-Aug-2016 23:05:36 GMT
+      - ljuniq=FusIbVKCxUnJkbc%3A1480945626; domain=.dreamwidth.org; path=/; expires=Fri,
+        03-Feb-2017 13:47:06 GMT
       Vary:
       - Accept-Encoding
     body:
-      encoding: UTF-8
-      string: "\n<!DOCTYPE html>\n<html>\n<head>\n<link rel=\"home\" title=\"Home\"
-        href=\"http://www.dreamwidth.org/\" />\n<link rel=\"contents\" title=\"Site
-        Map\" href=\"http://www.dreamwidth.org/site/\" />\n<link rel=\"help\" title=\"Technical
-        Support\" href=\"http://www.dreamwidth.org/support/\" /><style>\n    #Comments
-        q { padding-left: 2.5em; font-style: italic; }\n</style><title>rebecca2525
+      encoding: ASCII-8BIT
+      string: "\n<!DOCTYPE html>\n<html>\n<head>\n<meta name=\"viewport\" content=\"width=device-width,
+        initial-scale=1\">\n<link rel=\"home\" title=\"Home\" href=\"http://www.dreamwidth.org/\"
+        />\n<link rel=\"contents\" title=\"Site Map\" href=\"http://www.dreamwidth.org/site/\"
+        />\n<link rel=\"help\" title=\"Technical Support\" href=\"http://www.dreamwidth.org/support/\"
+        /><style>\n    #Comments q { padding-left: 2.5em; font-style: italic; }\n</style><title>rebecca2525
         | [FIC] Importing Test Part 2</title>\n\n            <script type=\"text/javascript\">\n
         \               var Site;\n                if (!Site)\n                    Site
-        = {};\n\n                var site_p = {\"ctx_popup_icons\": 1,\n\"media_embed_enabled\":
-        1,\n\"currentJournalBase\": \"http://rebecca2525.dreamwidth.org\",\n\"currentJournal\":
-        \"rebecca2525\",\n\"imgprefix\": \"http://s.dreamwidth.org/img\",\n\"inbox_update_poll\":
-        1,\n\"statprefix\": \"http://s.dreamwidth.org/stc\",\n\"ctx_popup\": 1,\n\"ctx_popup_userhead\":
-        1,\n\"iconprefix\": \"http://v.dreamwidth.org\",\n\"siteroot\": \"http://www.dreamwidth.org\",\n\"esn_async\":
-        1,\n\"has_remote\": 0,\n\"user_domain\": \"dreamwidth.org\"};\n                var
-        site_k = [\"ctx_popup_icons\", \"media_embed_enabled\", \"currentJournalBase\",
-        \"currentJournal\", \"imgprefix\", \"inbox_update_poll\", \"statprefix\",
-        \"ctx_popup\", \"ctx_popup_userhead\", \"iconprefix\", \"siteroot\", \"esn_async\",
-        \"has_remote\", \"user_domain\"];\n                for (var i = 0; site_k.length
-        > i; i++) {\n                    Site[site_k[i]] = site_p[site_k[i]];\n                }\n
-        \          </script>\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"http://s.dreamwidth.org/stc/??lj_base.css,esn.css,jquery/jquery.ui.core.css,jquery/jquery.ui.tooltip.css,jquery.contextualhover.css,lj_base-app.css,base-colors-light.css,lynx/lynx.css?v=1448242038\"
-        />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://s.dreamwidth.org/stc/??jquery/jquery.ui.button.css,jquery/jquery.ui.dialog.css,jquery.commentmanage.css,jquery/jquery.ui.theme.smoothness.css,entrypage.css,siteviews/lynx.css?v=1426479404\"
-        />\n<script type=\"text/javascript\" src=\"//s.dreamwidth.org/js/??jquery/jquery-1.8.3.js,dw/dw-core.js,jquery/jquery.ui.core.js,jquery/jquery.ui.widget.js,jquery/jquery.ui.tooltip.js,jquery.ajaxtip.js,jquery/jquery.ui.position.js,jquery.hoverIntent.js,jquery.contextualhover.js?v=1440903277\"></script>\n<script
-        type=\"text/javascript\" src=\"//s.dreamwidth.org/js/??jquery.quickreply.js,jquery.threadexpander.js,jquery/jquery.ui.button.js,jquery/jquery.ui.dialog.js,jquery.commentmanage.js,jquery.esn.js,jquery.poll.js,journals/jquery.tag-nav.js,jquery.mediaplaceholder.js?v=1460259022\"></script>\n\n<meta
+        = {};\n\n                var site_p = {\"esn_async\": 1,\n\"ctx_popup\": 1,\n\"has_remote\":
+        0,\n\"siteroot\": \"http://www.dreamwidth.org\",\n\"user_domain\": \"dreamwidth.org\",\n\"iconprefix\":
+        \"http://v.dreamwidth.org\",\n\"media_embed_enabled\": 1,\n\"ctx_popup_icons\":
+        1,\n\"ctx_popup_userhead\": 1,\n\"imgprefix\": \"http://www.dreamwidth.org/img\",\n\"currentJournal\":
+        \"rebecca2525\",\n\"currentJournalBase\": \"http://rebecca2525.dreamwidth.org\",\n\"statprefix\":
+        \"http://www.dreamwidth.org/stc\",\n\"inbox_update_poll\": 1};\n                var
+        site_k = [\"esn_async\", \"ctx_popup\", \"has_remote\", \"siteroot\", \"user_domain\",
+        \"iconprefix\", \"media_embed_enabled\", \"ctx_popup_icons\", \"ctx_popup_userhead\",
+        \"imgprefix\", \"currentJournal\", \"currentJournalBase\", \"statprefix\",
+        \"inbox_update_poll\"];\n                for (var i = 0; site_k.length > i;
+        i++) {\n                    Site[site_k[i]] = site_p[site_k[i]];\n                }\n
+        \          </script>\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.dreamwidth.org/stc/??lj_base.css,esn.css,jquery/jquery.ui.core.css,jquery/jquery.ui.tooltip.css,jquery.contextualhover.css,lj_base-app.css,base-colors-light.css,lynx/lynx.css?v=1448242038\"
+        />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.dreamwidth.org/stc/??jquery/jquery.ui.button.css,jquery/jquery.ui.dialog.css,jquery.commentmanage.css,jquery/jquery.ui.theme.smoothness.css,entrypage.css,siteviews/lynx.css?v=1426479404\"
+        />\n<script type=\"text/javascript\" src=\"//www.dreamwidth.org/js/??jquery/jquery-1.8.3.js,dw/dw-core.js,jquery/jquery.ui.core.js,jquery/jquery.ui.widget.js,jquery/jquery.ui.tooltip.js,jquery.ajaxtip.js,jquery/jquery.ui.position.js,jquery.hoverIntent.js,jquery.contextualhover.js?v=1480442558\"></script>\n<script
+        type=\"text/javascript\" src=\"//www.dreamwidth.org/js/??jquery.quickreply.js,jquery.threadexpander.js,jquery/jquery.ui.button.js,jquery/jquery.ui.dialog.js,jquery.commentmanage.js,jquery.esn.js,jquery.poll.js,journals/jquery.tag-nav.js,jquery.mediaplaceholder.js?v=1460259022\"></script>\n\n<meta
         http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n<link
         rel=\"meta\" type=\"application/rdf+xml\" title=\"FOAF\" href=\"http://rebecca2525.dreamwidth.org/data/foaf\"
         />\n<link rel=\"help\" href=\"http://www.dreamwidth.org/support/faq\" />\n<link
         rel=\"apple-touch-icon\" href=\"//www.dreamwidth.org/apple-touch-icon.png\"
-        />\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"
-        />\n<link rel=\"prev\" href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=4024&journal=rebecca2525\"
+        />\n<meta property=\"og:image:width\" content=\"363\"/>\n<meta property=\"og:image:height\"
+        content=\"363\"/>\n<meta http-equiv=\"Content-Type\" content=\"text/html;
+        charset=utf-8\" />\n<link rel=\"prev\" href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=4024&journal=rebecca2525\"
         />\n<link rel=\"next\" href=\"http://www.dreamwidth.org/go?dir=next&format=light&itemid=4024&journal=rebecca2525\"
         />\n<link rel=\"canonical\" href=\"http://rebecca2525.dreamwidth.org/4024.html\"
         />\n<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting\nvar
-        LJ_cmtinfo = {\"canSpam\": 1,\n\"journal\": \"rebecca2525\",\n\"form_auth\":
-        \"c0:1465513200:336:86400:FMFoZ7mZSZ-0-Mr6LxootZRA0Cw2:8d7dc085ebf3dcb8bd06607525b7f062\",\n\"remote\":
-        \"\",\n\"canAdmin\": \"\"}\n</script>\n</head>\n\n<body >\n\n<div role=\"main\"
-        id=\"content\">\n    <div class=\"row\">\n        <div class=\"columns large-12\">\n
-        \       <h1></h1>\n        </div>\n    </div>\n\n\n    <div class=\"row\"><div
-        class=\"large-12 columns\"><div class=\"entry-wrapper entry-wrapper-odd security-public
-        restrictions-none journal-type-P poster-rebecca2525 journal-rebecca2525 has-userpic
-        has-subject\" id=\"entry-wrapper-4024\">\n<div class=\"separator separator-before\"><div
-        class=\"inner\"></div></div>\n<div class=\"entry\" id=\"entry-4024\">\n<div
-        class=\"inner\">\n<div class=\"header\">\n<div class=\"inner\">\n<div class=\"userpic\"><a
-        href=\"http://rebecca2525.dreamwidth.org/icons\"><img src=\"http://v.dreamwidth.org/622680/549029\"
-        title=\"rebecca2525: (Default) (Abby Sciuto from NCIS with the word &quot;geek&quot;)\"
-        alt=\"rebecca2525: Abby Sciuto from NCIS with the word &quot;geek&quot; (Default)\"
-        \ height=\"100\" width=\"100\" /></a></div>\n<div class=\"poster-info\">\n<span
-        class=\"poster entry-poster \">rebecca2525 (<span lj:user='rebecca2525' style='white-space:
+        LJ_cmtinfo = {\"form_auth\": \"c0:1480942800:2826:86400:5tzdBmjPed-0-FusIbVKCxUnJkbc:8072c44c08af6d479df3c760176beb23\",\n\"journal\":
+        \"rebecca2525\",\n\"canSpam\": 1,\n\"canAdmin\": \"\",\n\"remote\": \"\"}\n</script>\n</head>\n\n<body
+        >\n\n<div role=\"main\" id=\"content\">\n    <div class=\"row\">\n        <div
+        class=\"columns large-12\">\n        <h1></h1>\n        </div>\n    </div>\n\n\n
+        \   <div class=\"row\"><div class=\"large-12 columns\"><div class=\"entry-wrapper
+        entry-wrapper-odd security-public restrictions-none journal-type-P poster-rebecca2525
+        journal-rebecca2525 has-userpic has-subject\" id=\"entry-wrapper-4024\">\n<div
+        class=\"separator separator-before\"><div class=\"inner\"></div></div>\n<div
+        class=\"entry\" id=\"entry-4024\">\n<div class=\"inner\">\n<div class=\"header\">\n<div
+        class=\"inner\">\n<div class=\"userpic\"><a href=\"http://rebecca2525.dreamwidth.org/icons\"><img
+        src=\"http://v.dreamwidth.org/622680/549029\" title=\"rebecca2525: (Default)
+        (Abby Sciuto from NCIS with the word &quot;geek&quot;)\" alt=\"rebecca2525:
+        Abby Sciuto from NCIS with the word &quot;geek&quot; (Default)\"  height=\"100\"
+        width=\"100\" /></a></div>\n<div class=\"poster-info\">\n<span class=\"poster
+        entry-poster \">rebecca2525 (<span lj:user='rebecca2525' style='white-space:
         nowrap;' class='ljuser'><a href='http://rebecca2525.dreamwidth.org/profile'><img
-        src='http://s.dreamwidth.org/img/silk/identity/user.png' alt='[personal profile]
-        ' width='17' height='17' style='vertical-align: text-bottom; border: 0; padding-right:
-        1px;' /></a><a href='http://rebecca2525.dreamwidth.org/'><b>rebecca2525</b></a></span>)
+        src='http://www.dreamwidth.org/img/silk/identity/user.png' alt='[personal
+        profile] ' width='17' height='17' style='vertical-align: text-bottom; border:
+        0; padding-right: 1px;' /></a><a href='http://rebecca2525.dreamwidth.org/'><b>rebecca2525</b></a></span>)
         wrote</span><span class=\"datetime\"><span class=\"date\"><a href=\"/2000/\">2000</a>-<a
         href=\"/2000/01/\">01</a>-<a href=\"/2000/01/22/\">22</a></span> <span class=\"time\">12:29
         pm</span></span></div>\n</div>\n<div class=\"action-box\">\n<div class=\"inner\">\n<ul
         class=\"entry-management-links icon-links\"><li class=\"link link_prev first-item\">
         <a href=\"http://www.dreamwidth.org/go?dir=prev&format=light&itemid=4024&journal=rebecca2525\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Previous Entry\" title=\"Previous
-        Entry\" src=\"//s.dreamwidth.org/img/silk/entry/previous.png\"  /></a></li>\n<li
+        Entry\" src=\"//www.dreamwidth.org/img/silk/entry/previous.png\"  /></a></li>\n<li
         class=\"link mem_add\"><a href=\"http://www.dreamwidth.org/tools/memadd?journal=rebecca2525&amp;itemid=4024\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Add Memory\" title=\"Add
-        Memory\" src=\"//s.dreamwidth.org/img/silk/entry/memories_add.png\"  /></a></li>\n<li
+        Memory\" src=\"//www.dreamwidth.org/img/silk/entry/memories_add.png\"  /></a></li>\n<li
         class=\"link tell_friend\"><a href=\"http://www.dreamwidth.org/tools/tellafriend?journal=rebecca2525&amp;itemid=4024\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Share This Entry\" title=\"Share
-        This Entry\" src=\"//s.dreamwidth.org/img/silk/entry/tellafriend.png\"  /></a></li>\n<li
+        This Entry\" src=\"//www.dreamwidth.org/img/silk/entry/tellafriend.png\"  /></a></li>\n<li
         class=\"link link_next\"> <a href=\"http://www.dreamwidth.org/go?dir=next&format=light&itemid=4024&journal=rebecca2525\"
         ><img border='0' width=\"16\" height=\"16\" alt=\"Next Entry\" title=\"Next
-        Entry\" src=\"//s.dreamwidth.org/img/silk/entry/next.png\"  /></a></li>\n</ul></div>\n</div>\n</div>\n<div
+        Entry\" src=\"//www.dreamwidth.org/img/silk/entry/next.png\"  /></a></li>\n</ul></div>\n</div>\n</div>\n<div
         class=\"currents\">\n<div class=\"metadata bottom-metadata\">\n<ul>\n<li id=\"metadata-mood\"><span
-        class=\"metadata-label metadata-label-mood\">Current Mood:</span>  <img src=\"https://s.dreamwidth.org/img/mood/bunnies-black/blah.gif\"
+        class=\"metadata-label metadata-label-mood\">Current Mood:</span>  <img src=\"https://www.dreamwidth.org/img/mood/bunnies-black/blah.gif\"
         title=\"\" alt=\"\"  height=\"23\" width=\"17\" /> <span class=\"metadata-item
         metadata-item-mood\">blah</span></li>\n<li id=\"metadata-xpost\"><span class=\"metadata-label
         metadata-label-xpost\">Crossposts:</span> <span class=\"metadata-item metadata-item-xpost\"><a
@@ -286,5 +287,5 @@ http_interactions:
         \   <div id='statistics' style='text-align: left; font-size:0; line-height:0;
         height:0; overflow:hidden;'></div></div></div>\n</body>\n</html>"
     http_version: 
-  recorded_at: Thu, 09 Jun 2016 23:05:36 GMT
+  recorded_at: Mon, 05 Dec 2016 13:47:06 GMT
 recorded_with: VCR 3.0.1

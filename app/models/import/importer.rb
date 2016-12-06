@@ -37,4 +37,18 @@ class Import::Importer
     [works, errors]
   end
 
+  # if we are importing for others, we need to send invitations
+  def send_external_invites(works, current_user)
+    return unless @settings.importing_for_others
+
+    @external_authors = works.collect(&:external_authors).flatten.uniq
+    if @external_authors.empty?
+      I18n.ts("No authors to notify.")
+    else
+      @external_authors.each do |external_author|
+        external_author.find_or_invite(current_user)
+      end
+      I18n.ts("We have notified the author(s) you imported works for. If any were missed, you can also add co-authors manually.")
+    end
+  end
 end

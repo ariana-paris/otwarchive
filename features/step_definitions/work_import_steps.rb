@@ -49,8 +49,14 @@ stubbed response", headers: {})
     to_return(status: 404, headers: {})
 end
 
+def turn_off_mock()
+  WebMock.allow_net_connect!
+end
+
 Given /^I set up importing( with a mock website)?( as an archivist)?$/ do |mock, is_archivist|
-  unless mock.blank?
+  if mock.blank?
+    turn_off_mock
+  else
     mock_external
   end
   step %{basic tags}

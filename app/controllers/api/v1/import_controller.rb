@@ -21,6 +21,9 @@ class Api::V1::ImportController < Api::V1::BaseController
       # Flag error and successes
       @some_errors = @some_success = false
 
+      options = options(archivist, external_work)
+      @importer = Import::Importer.new(options)
+
       # Process the works, updating the flags
       external_works.each do |external_work|
         works_responses << import_work(archivist, external_work.merge(params))
@@ -28,7 +31,7 @@ class Api::V1::ImportController < Api::V1::BaseController
 
       # Send claim notification emails if required
       if params[:send_claim_emails] && !@works.empty?
-        send_external_invites(@works, archivist)
+        @importer.send_external_invites(@works, archivist)
       end
 
       # set final response code and message depending on the flags
@@ -64,9 +67,7 @@ class Api::V1::ImportController < Api::V1::BaseController
     if work_status == :ok
       urls = external_work[:chapter_urls]
       original_url = urls.first
-      options = options(archivist, external_work)
-      importer = Import::Importer.new(options)
-      @works, errors = importer.import(urls)
+      @works, errors = @importer.import(urls)
       if errors.empty?
         @some_success = true
         work_status = :created
@@ -122,16 +123,6 @@ class Api::V1::ImportController < Api::V1::BaseController
     end
     status = :ok if errors.empty?
     [status, errors]
-  end
-
-  # send invitations to external authors for a given set of works
-  def send_external_invites(works, archivist)
-    external_authors = works.collect(&:external_authors).flatten.uniq
-    unless external_authors.empty?
-      external_authors.each do |external_author|
-        external_author.find_or_invite(archivist)
-      end
-    end
   end
 
   def options(archivist, params)

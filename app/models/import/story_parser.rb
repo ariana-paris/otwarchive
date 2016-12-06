@@ -37,15 +37,6 @@ class Import::StoryParser
   # These attributes need to be copied from the work to the chapter
   CHAPTER_ATTRIBUTES_ALSO = { revised_at: :published_at }.freeze
 
-  # time out if we can't download fast enough
-  STORY_DOWNLOAD_TIMEOUT = 60
-  MAX_CHAPTER_COUNT = 200
-
-  # To check for duplicate chapters, take a slice this long out of the story
-  # (in characters)
-  DUPLICATE_CHAPTER_LENGTH = 10_000
-
-
   # Import many stories
   def import_from_urls(urls, options = {})
     # Try to get the works
@@ -266,23 +257,23 @@ class Import::StoryParser
 
   def parse_author_common(email, name)
     if name.present? && email.present?
-    # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
-    name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
-    external_author_name = name
-    external_author = ExternalAuthor.find_or_create_by_email(email)
-    unless name.blank?
-      external_author_name = ExternalAuthorName.where(name: name, external_author_id: external_author.id).first ||
+      # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
+      name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
+      external_author_name = name
+      external_author = ExternalAuthor.find_or_create_by_email(email)
+      unless name.blank?
+        external_author_name = ExternalAuthorName.where(name: name, external_author_id: external_author.id).first ||
           ExternalAuthorName.new(name: name)
-      external_author.external_author_names << external_author_name
-      external_author.save
-    end
+        external_author.external_author_names << external_author_name
+        external_author.save
+      end
       external_author_name
     else
       messages = []
       messages << "No author name specified" if name.blank?
       messages << "No author email specified" if email.blank?
       raise Error, messages.join("\n")
-  end
+    end
   end
 
   def get_chapter_from_work_params(work_params)
@@ -470,7 +461,7 @@ class Import::StoryParser
     Timeout.timeout(STORY_DOWNLOAD_TIMEOUT) do
       resp = open(location)
       resp.last_modified
-  end
+    end
   end
 
   def get_source_if_known(known_sources, location)
