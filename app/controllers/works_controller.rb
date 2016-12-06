@@ -498,14 +498,6 @@ class WorksController < ApplicationController
     if errors.empty?
       if (@urls.size == 1 && params[:import_multiple] == "works") || params[:import_multiple] == "chapters"
         @work = @works.first
-        unless @work && @work.save
-          flash.now[:error] = ts("We were only partially able to import this work and couldn't save it. Please review below!")
-          @chapter = @work.chapters.first
-          load_pseuds
-          @series = current_user.series.uniq
-          render :new and return
-        end
-
         send_external_invites(@works)
         @chapter = @work.first_chapter if @work
         if @work.posted
@@ -524,13 +516,17 @@ class WorksController < ApplicationController
       error_msgs = errors.map { |url, url_errors| "<dt>#{url}</dt><dd>#{url_errors}</dd>"}.join("\n")
       flash.now[:error] = "<h3>#{ts('Failed Imports')}</h3><dl>#{error_msgs}</dl>".html_safe
 
-      # if EVERYTHING failed, boo. :( Go back to the import form.
       if @works.empty?
+        # if EVERYTHING failed, boo. :( Go back to the import form.
         render :new_import and return
+      else
+        @work = @works.first
+        @chapter = @work.chapters.first
+        load_pseuds
+        @series = current_user.series.uniq
+        render :new and return
       end
-
     end
-
   end
 
 protected
