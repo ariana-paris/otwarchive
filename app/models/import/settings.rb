@@ -53,13 +53,15 @@ class Import::Settings
     @detect_tags = params[:detect_tags] == "true"
 
     # Work parameters
-    @fandom = params[:work][:fandom_string]
-    @warning = params[:work][:warning_strings]
-    @character = params[:work][:character_string]
-    @rating = params[:work][:rating_string]
-    @relationship = params[:work][:relationship_string]
-    @category = params[:work][:category_string]
-    @freeform = params[:work][:freeform_string]
+    unless params[:work].nil?
+      @fandom = params[:work][:fandom_string]
+      @warning = params[:work][:warning_strings]
+      @character = params[:work][:character_string]
+      @rating = params[:work][:rating_string]
+      @relationship = params[:work][:relationship_string]
+      @category = params[:work][:category_string]
+      @freeform = params[:work][:freeform_string]
+    end
     @notes = params[:notes]
 
     @encoding = params[:encoding]

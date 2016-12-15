@@ -85,9 +85,9 @@ class WorksController < ApplicationController
 
     if logged_in? && @tag
       @favorite_tag = @current_user.favorite_tags
-                                   .where(tag_id: @tag.id).first ||
-                      FavoriteTag
-                      .new(tag_id: @tag.id, user_id: @current_user.id)
+                        .where(tag_id: @tag.id).first ||
+        FavoriteTag
+          .new(tag_id: @tag.id, user_id: @current_user.id)
     end
 
     if @owner.present?
@@ -99,7 +99,7 @@ class WorksController < ApplicationController
         # Note: we only cache some first initial number of pages since those are biggest bang for
         # the buck -- users don't often go past them
         if use_caching? && params[:work_search].blank? && params[:fandom_id].blank? &&
-           (params[:page].blank? || params[:page].to_i <= ArchiveConfig.PAGES_TO_CACHE)
+          (params[:page].blank? || params[:page].to_i <= ArchiveConfig.PAGES_TO_CACHE)
           # the subtag is for eg collections/COLL/tags/TAG
           subtag = @tag.present? && @tag != @owner ? @tag : nil
           user = logged_in? || logged_in_as_admin? ? 'logged_in' : 'logged_out'
@@ -223,7 +223,7 @@ class WorksController < ApplicationController
     if current_user.respond_to?(:subscriptions)
       @subscription = current_user.subscriptions.where(subscribable_id: @work.id,
                                                        subscribable_type: 'Work').first ||
-                      current_user.subscriptions.build(subscribable: @work)
+        current_user.subscriptions.build(subscribable: @work)
     end
 
     render :show
@@ -349,7 +349,7 @@ class WorksController < ApplicationController
     end
 
     @work.preview_mode = !!(params[:preview_button] || params[:edit_button] ||
-                            params[:cancel_coauthor_button])
+      params[:cancel_coauthor_button])
     @work.attributes = work_params
     @chapter.attributes = work_params[:chapter_attributes] if work_params[:chapter_attributes]
     @work.ip_address = request.remote_ip
@@ -455,42 +455,22 @@ class WorksController < ApplicationController
 
   # POST /works/import
   def import
+    importer = Import::Importer.new(params)
+
+    errors = importer.check_errors(params[:urls].split, current_user)
+    if errors.empty?
+      # TODO: wrap other behaviour
+    else
+      flash.now[:error] = errors
+      render(:new_import) && return
+    end
+
     # check to make sure we have some urls to work with
     @urls = params[:urls].split
-
-    if @urls.empty?
-      flash.now[:error] = ts('Did you want to enter a URL?')
-      render(:new_import) && return
-    end
-
-    importing_for_others = params[:importing_for_others] != "false" && params[:importing_for_others]
-
-    # is external author information entered when import for others is not checked?
-    if (params[:external_author_name].present? || params[:external_author_email].present?) && !importing_for_others
-      flash.now[:error] = ts('You have entered an external author name or e-mail address but did not select "Import for others." Please select the "Import for others" option or remove the external author information to continue.')
-      render(:new_import) && return
-    end
-
-    # is this an archivist importing?
-    if importing_for_others && !current_user.archivist
-      flash.now[:error] = ts('You may not import stories by other users unless you are an approved archivist.')
-      render(:new_import) && return
-    end
-
-    # make sure we're not importing too many at once
-    if params[:import_multiple] == 'works' && (!current_user.archivist && @urls.length > ArchiveConfig.IMPORT_MAX_WORKS || @urls.length > ArchiveConfig.IMPORT_MAX_WORKS_BY_ARCHIVIST)
-      flash.now[:error] = ts('You cannot import more than %{max} works at a time.', max: current_user.archivist ? ArchiveConfig.IMPORT_MAX_WORKS_BY_ARCHIVIST : ArchiveConfig.IMPORT_MAX_WORKS)
-      render(:new_import) && return
-    elsif params[:import_multiple] == 'chapters' && @urls.length > ArchiveConfig.IMPORT_MAX_CHAPTERS
-      flash.now[:error] = ts('You cannot import more than %{max} chapters at a time.', max: ArchiveConfig.IMPORT_MAX_CHAPTERS)
-      render(:new_import) && return
-    end
 
     if params[:pseuds_to_apply]
       params[:pseuds_to_apply] = Pseud.find_by_name(params[:pseuds_to_apply])
     end
-
-    importer = Import::Importer.new(params)
 
     # now let's do the import
     @works, errors = importer.import(@urls)
@@ -516,7 +496,7 @@ class WorksController < ApplicationController
     else
       # Something went wrong
       # collect the errors, matching each error to the failed url
-      error_msgs = errors.map { |url, url_errors| "<dt>#{url}</dt><dd>#{url_errors}</dd>"}.join("\n")
+      error_msgs = errors.map { |url, url_errors| "<dt>#{url}</dt><dd>#{url_errors}</dd>" }.join("\n")
       flash.now[:error] = "<h3>#{ts('Failed Imports')}</h3><dl>#{error_msgs}</dl>".html_safe
 
       if @works.empty?
@@ -532,7 +512,7 @@ class WorksController < ApplicationController
     end
   end
 
-protected
+  protected
 
   # check to see if the work is being added / has been added to a moderated collection, then let user know that
   def in_moderated_collection
@@ -600,8 +580,8 @@ protected
     @works = @works.where(id: params[:work_ids]) if params[:work_ids]
 
     @works_by_fandom = @works.joins(:taggings)
-                             .joins("inner join tags on taggings.tagger_id = tags.id AND tags.type = 'Fandom'")
-                             .select('distinct tags.name as fandom, works.id, works.title, works.posted').group_by(&:fandom)
+                         .joins("inner join tags on taggings.tagger_id = tags.id AND tags.type = 'Fandom'")
+                         .select('distinct tags.name as fandom, works.id, works.title, works.posted').group_by(&:fandom)
   end
 
   def edit_multiple
@@ -847,14 +827,14 @@ protected
     if @owner.present?
       owner_name =
         case @owner.class.to_s
-        when 'Pseud'
-          @owner.name
-        when 'User'
-          @owner.login
-        when 'Collection'
-          @owner.title
-        else
-          @owner.try(:name)
+          when 'Pseud'
+            @owner.name
+          when 'User'
+            @owner.login
+          when 'Collection'
+            @owner.title
+          else
+            @owner.try(:name)
         end
 
       "#{owner_name} - Works".html_safe
