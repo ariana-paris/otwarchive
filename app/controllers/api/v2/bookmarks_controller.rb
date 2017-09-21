@@ -121,6 +121,7 @@ class Api::V2::BookmarksController < Api::V2::BaseController
       rescue StandardError => exception
         bookmark_status = :unprocessable_entity
         bookmark_messages << exception.message
+        Rails.logger.error(exception.backtrace)
       end
       original_url = bookmarkable.url if bookmarkable
     end
@@ -135,7 +136,7 @@ class Api::V2::BookmarksController < Api::V2::BaseController
   end
 
   # Error handling
-  
+
   # Set messages based on success and error flags
   def response_message(messages)
     messages << if @some_success && @some_errors
@@ -201,7 +202,7 @@ class Api::V2::BookmarksController < Api::V2::BaseController
       rec: params[:recommendation].blank? ? false : params[:recommendation]
     }
   end
-  
+
   def bookmark_response(status:, bookmark_url:, bookmark_id:, original_url:, messages:)
     messages = [messages] unless messages.respond_to?('each')
     {
@@ -212,7 +213,7 @@ class Api::V2::BookmarksController < Api::V2::BaseController
       messages: messages
     }
   end
-  
+
   def find_bookmark_response(bookmarkable:, bookmark_status:, bookmark_message:, bookmark_url:)
     bookmark_status = :not_found unless [:found, :not_found].include?(bookmark_status)
     {
