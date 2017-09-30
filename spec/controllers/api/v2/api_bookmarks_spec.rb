@@ -88,7 +88,7 @@ describe "API v2 BookmarksController", type: :request do
 
   describe "Invalid API bookmark import" do
     let(:archivist) { create(:archivist) }
-    
+
     it "returns 400 Bad Request if no bookmarks are specified" do
       post "/api/v2/bookmarks",
            params: { archivist: archivist.login }.to_json,

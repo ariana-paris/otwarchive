@@ -295,7 +295,7 @@ describe "API v2 WorksController - Create works", type: :request do
         mock_external
 
         archivist = create(:archivist)
-        
+
         valid_params = {
           archivist: archivist.login,
           works: [
@@ -444,7 +444,7 @@ describe "API v2 WorksController - Create works", type: :request do
         mock_external
 
         archivist = create(:archivist)
-        
+
         valid_params = {
           archivist: archivist.login,
           works: [
