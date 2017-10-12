@@ -129,17 +129,16 @@ class Api::V2::WorksController < Api::V2::BaseController
     else
       # We know the url will be identical no need for a call to find_by_url
       works = Work.where(imported_from_url: original_url)
-      unless works
+      if works.empty?
         error = "No work has been imported from \"" + original_url + "\"."
       end
     end
     {
       original_url: original_url,
-      works: works,
+      works: works.map { |w| api_work_json(w) },
       error: error
     }
   end
-
 
   # Use the story parser to scrape works from the chapter URLs
   def import_work(archivist, external_work)
@@ -219,5 +218,62 @@ class Api::V2::WorksController < Api::V2::BaseController
       external_coauthor_name: work_params[:external_coauthor_name],
       external_coauthor_email: work_params[:external_coauthor_email]
     }
+  end
+
+  # Render work as Json
+  def api_work_json(work)
+    hash = work.to_hash
+    puts hash.slice(
+      "id",
+      "created_at",
+      "updated_at",
+      "language_id",
+      "restricted",
+      "title",
+      "summary",
+      "notes",
+      "word_count",
+      "revised_at",
+      "backdate",
+      "endnotes",
+      "imported_from_url",
+      "complete"
+    )
+    hash.to_json
+    # id: 1,
+    #   +  expected_number_of_chapters: 1,
+    #   +  created_at: Thu, 12 Oct 2017 04:29:23 EDT -04:00,
+    #   +  updated_at: Thu, 12 Oct 2017 04:29:23 EDT -04:00,
+    #   +  major_version: 1,
+    #   +  minor_version: 0,
+    #   +  posted: false,
+    # +  language_id: nil,
+    # +  restricted: false,
+    # +  title: "My title is long enough",
+    #   +  summary: nil,
+    # +  notes: nil,
+    # +  word_count: 8,
+    #   +  hidden_by_admin: false,
+    # +  delta: false,
+    # +  revised_at: Thu, 12 Oct 2017 04:29:23 EDT -04:00,
+    #   +  authors_to_sort_on: "kv905bc",
+    #   +  title_to_sort_on: "my title is long enough",
+    #   +  backdate: false,
+    # +  endnotes: nil,
+    # +  imported_from_url: "http://foo",
+    #   +  hit_count_old: 0,
+    #   +  last_visitor_old: nil,
+    # +  complete: false,
+    # +  summary_sanitizer_version: 0,
+    #   +  notes_sanitizer_version: 0,
+    #   +  endnotes_sanitizer_version: 0,
+    #   +  work_skin_id: nil,
+    # +  in_anon_collection: false,
+    # +  in_unrevealed_collection: false,
+    # +  anon_commenting_disabled: false,
+    # +  ip_address: nil,
+    # +  spam: false,
+    # +  spam_checked_at: nil,
+    # +  moderated_commenting_enabled: false
   end
 end
