@@ -1,25 +1,41 @@
 class Api::V2::WorksController < Api::V2::BaseController
   respond_to :json
 
-  # POST - search for works based on imported url
+  # POST - search for works based on imported url first, or based on any other provided work details
   def search
-    works = params[:works]
+    work_searches = params[:works]
     original_urls = works.map { |w| w[:original_urls] }.flatten
 
     results = []
     messages = []
-    if original_urls.nil? || original_urls.blank? || original_urls.empty?
+    if work_searches.empty?
       status = :empty_request
-      messages << "Please provide a list of URLs to find."
-    elsif original_urls.size >= ArchiveConfig.IMPORT_MAX_CHAPTERS
+      messages << "Please provide a list of works or URLs to find."
+    elsif work_searches.size >= ArchiveConfig.IMPORT_MAX_CHAPTERS
       status = :too_many_request
-      messages << "Please provide no more than #{ArchiveConfig.IMPORT_MAX_CHAPTERS} URLs to find."
+      messages << "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } works or URLs to find."
     else
-      status = :ok
-      results = find_existing_works(original_urls)
-      messages << "Successfully searched all provided URLs."
+      results =
+        work_searches.map do |work_search|
+          original_urls = work_search[:original_urls]
+          if original_urls.nil? || original_urls.blank? || original_urls.empty?
+            # Process other metadata if present
+            status = :empty_request
+            messages << "Please provide a list of URLs to find."
+            []
+          elsif original_urls.size >= ArchiveConfig.IMPORT_MAX_CHAPTERS
+            status = :too_many_request
+            messages << "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } URLs to find."
+            []
+          else
+            status = :ok
+            messages << "Successfully searched all provided URLs."
+            find_existing_works(original_urls)
+          end
+        end
     end
-    render_api_response(status, messages, works: results)
+
+    render_api_response(status, messages, works: results.flatten)
   end
 
   # POST - create a work and invite authors to claim

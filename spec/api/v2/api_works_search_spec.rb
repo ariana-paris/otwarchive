@@ -41,8 +41,10 @@ describe "valid work URL request" do
   it "returns an error when no works are provided" do
     invalid_params = { works: [] }
     parsed_body = post_search_result(invalid_params)
+    
+    puts parsed_body.inspect
 
-    expect(parsed_body[:messages].first).to eq "Please provide a list of URLs to find."
+    expect(parsed_body[:messages].first).to eq "Please provide a list of works or URLs to find."
   end
   
   it "returns an error when no URLs are provided" do
@@ -87,7 +89,7 @@ describe "valid work URL request" do
   end
 end
 
-describe "API Work Search" do
+describe "v2 API Work Search" do
   valid_input = { works: [{ original_url: "123",
                             title: api_fields["Title"],
                             creator: "Bar",
