@@ -9,7 +9,7 @@ def post_search_result(valid_params)
   JSON.parse(response.body, symbolize_names: true)
 end
 
-describe "valid work URL request" do
+describe "v2 Search with valid work URL request" do
   work = FactoryGirl.create(:work, posted: true, imported_from_url: "foo")
   
   it "returns 200 OK" do
@@ -44,16 +44,9 @@ describe "valid work URL request" do
     
     puts parsed_body.inspect
 
-    expect(parsed_body[:messages].first).to eq "Please provide a list of works or URLs to find."
+    expect(parsed_body[:messages].first).to eq "Please provide a list of works to find."
   end
   
-  it "returns an error when no URLs are provided" do
-    invalid_params = { works: [{ original_urls: [] }] }
-    parsed_body = post_search_result(invalid_params)
-
-    expect(parsed_body[:messages].first).to eq "Please provide a list of URLs to find."
-  end
-
   it "returns an error when too many works are provided" do
     loads_of_items = Array.new(210) { |_| { original_urls: ["url"] } }
     valid_params = { works: loads_of_items }
@@ -89,15 +82,19 @@ describe "valid work URL request" do
   end
 end
 
+describe "v2 API work search without URLs" do
+  it "performs a full search when no URLs are provided" do
+    invalid_params = { works: [{ original_urls: [] }] }
+    parsed_body = post_search_result(invalid_params)
+
+    expect(parsed_body[:messages].first).to eq "Please provide a list of URLs to find."
+  end
+end
+
 describe "v2 API Work Search" do
-  valid_input = { works: [{ original_url: "123",
-                            title: api_fields["Title"],
-                            creator: "Bar",
-                            fandom: "Testing"},
-                          { original_url: "435",
-                            title: api_fields["Title"],
-                            creator: "Foo",
-                            fandom: "Testing"}] }
+  valid_input =  
+    { works: [{ title: api_fields["Title"], creator: "Bar", fandom: "Testing"},
+              { original_url: "435", title: api_fields["Title"], creator: "Foo", fandom: "Testing"}] }
 
   output = { works: [{ original_url: "123",
                                 works: [{ ao3_url: "works/12435", title: "Title", creator: "Author", fandom: "Testing" }]},
@@ -105,14 +102,15 @@ describe "v2 API Work Search" do
                                 works: []}]}
 
   it "should take a batch of work fields and return works" do
-    post_search_result(valid_input.to_json)
+    puts valid_input
+    post_search_result(valid_input)
     assert_equal 200, response.status
   end
 
   describe "given a valid request" do
 
     before :all do
-      parsed_body = post_search_result(valid_input.to_json)
+      parsed_body = post_search_result(valid_input)
       @search_results = parsed_body[:search_results]
     end
 

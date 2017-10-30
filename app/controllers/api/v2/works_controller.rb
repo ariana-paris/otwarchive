@@ -4,35 +4,13 @@ class Api::V2::WorksController < Api::V2::BaseController
   # POST - search for works based on imported url first, or based on any other provided work details
   def search
     work_searches = params[:works]
-    original_urls = works.map { |w| w[:original_urls] }.flatten
-
-    results = []
     messages = []
-    if work_searches.empty?
-      status = :empty_request
-      messages << "Please provide a list of works or URLs to find."
-    elsif work_searches.size >= ArchiveConfig.IMPORT_MAX_CHAPTERS
-      status = :too_many_request
-      messages << "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } works or URLs to find."
-    else
-      results =
-        work_searches.map do |work_search|
-          original_urls = work_search[:original_urls]
-          if original_urls.nil? || original_urls.blank? || original_urls.empty?
-            # Process other metadata if present
-            status = :empty_request
-            messages << "Please provide a list of URLs to find."
-            []
-          elsif original_urls.size >= ArchiveConfig.IMPORT_MAX_CHAPTERS
-            status = :too_many_request
-            messages << "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } URLs to find."
-            []
-          else
-            status = :ok
-            messages << "Successfully searched all provided URLs."
-            find_existing_works(original_urls)
-          end
-        end
+
+    status = error_status(work_searches)
+    messages << work_searches_errors(status) unless status == :ok
+
+    results = work_searches&.map do |metadata|
+      find_existing_works(metadata)
     end
 
     render_api_response(status, messages, works: results.flatten)
@@ -60,7 +38,7 @@ class Api::V2::WorksController < Api::V2::BaseController
 
       # set final status code and message depending on the flags
       status = :bad_request if error_responses.present?
-      messages = response_message(messages, success_responses.present?, error_responses.present?)
+      messages = import_response_message(messages, success_responses.present?, error_responses.present?)
     end
     render_api_response(status, messages, works: works_responses.map { |r| r.except!(:work) })
   end
@@ -68,7 +46,7 @@ class Api::V2::WorksController < Api::V2::BaseController
   private
 
   # Set messages based on success and error flags
-  def response_message(messages, any_success, any_errors)
+  def import_response_message(messages, any_success, any_errors)
     messages << if any_success && any_errors
                   "At least one work was not imported. Please check individual work responses for further information."
                 elsif !any_success && any_errors
@@ -79,60 +57,82 @@ class Api::V2::WorksController < Api::V2::BaseController
     messages
   end
 
+  def error_status(requests)
+    if requests.nil? || requests.empty?
+      :empty_request
+    elsif requests.length >= ArchiveConfig.IMPORT_MAX_CHAPTERS
+      :too_many_requests
+    else
+      :ok
+    end
+  end
+
+  def work_searches_errors(error_status)
+    case error_status
+      when :empty_request
+        "Please provide a list of works to find."
+      when :too_many_requests
+        "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } works to find."
+      else
+        "An unexpected error occurred: #{error_status}"
+    end
+  end
+
+  def original_url_errors(error_status)
+    case error_status
+      when :empty_request
+        "Please provide a list of URLs to find."
+      when :too_many_requests
+        "Please provide no more than #{ ArchiveConfig.IMPORT_MAX_CHAPTERS } URLs to find."
+      else
+        "An unexpected error occurred: #{error_status}"
+    end
+  end
+
   # Work-level error handling for requests that are incomplete or too large
   def work_errors(work)
-    status = :bad_request
     errors = []
     urls = work[:chapter_urls]
-    if urls.nil? || urls.empty?
-      status = :empty_request
-      errors << "This work doesn't contain any chapter URLs. " +
-                "Works can only be imported from publicly-accessible chapter URLs."
-    elsif urls.length >= ArchiveConfig.IMPORT_MAX_CHAPTERS
-      status = :too_many_requests
+    status = error_status(urls)
+
+    if status == :empty_request
+      errors << "This work doesn't contain chapter_urls. Works can only be imported from publicly-accessible URLs."
+    elsif status == :too_many_requests
       errors << "This work contains too many chapter URLs. A maximum of #{ArchiveConfig.IMPORT_MAX_CHAPTERS} " \
-                "chapters can be imported per work."
+                  "chapters can be imported per work."
     end
-    status = :ok if errors.empty?
+
     [status, errors]
   end
 
-  # Search for works imported from the provided URLs
-  def find_existing_works(original_urls)
+  # Search for works imported from the provided metadata objects
+  def find_existing_works(metadata)
     results = []
-    messages = []
-    original_urls.each do |original|
-      original_id = ""
-      if original.class == String
-        original_url = original
-      else
-        original_id = original[:id]
-        original_url = original[:url]
-      end
+    messages = ""
+    # Search for works - there may be duplicates and if there are multiple urls
+    search_results = find_work_by_metadata(metadata)
 
-      # Search for works - there may be duplicates
-      search_results = find_work_by_import_url(original_url)
-      if search_results[:works].empty?
-        results << { status: :not_found,
-                     original_id: original_id,
-                     original_url: original_url,
-                     messages: [search_results[:message]] }
-      else
-        work_results = search_results[:works].map do |work|
-          archive_url = work_url(work)
-          message = "Work \"#{work.title}\", created on #{work.created_at.to_date.to_s(:iso_date)} was found at \"#{archive_url}\"."
-          messages << message
-          { archive_url: archive_url,
-            created: work.created_at,
-            message: message }
-        end
-        results << { status: :found,
-                     original_id: original_id,
-                     original_url: original_url,
-                     search_results: work_results,
-                     messages: messages
-                   }
+    puts search_results
+
+    if search_results[:works].empty?
+      results << { status: :not_found,
+                   work_search: metadata,
+                   messages: [search_results[:error]] }
+    else
+      work_results = search_results[:works].map do |work|
+        puts "WORK: " + work.inspect
+        archive_url = work_url(work)
+        messages << "Work \"#{work.title}\", created on #{work.created_at.to_date.to_s(:iso_date)} was found at \"#{archive_url}\"."
+
+        { archive_url: archive_url,
+          created: work.created_at,
+          message: messages }
       end
+      results << { status: :found,
+                   original_search: metadata,
+                   search_results: work_results,
+                   messages: messages
+      }
     end
     results
   end
@@ -154,6 +154,34 @@ class Api::V2::WorksController < Api::V2::BaseController
       original_url: original_url,
       works: works,
       message: message
+    }
+  end
+
+  def find_work_by_metadata(metadata)
+    error = ""
+    if metadata[:original_urls]
+      works = metadata[:original_urls].map do |original_url|
+        # We know the url will be identical no need for a call to find_by_url
+        Work.where(imported_from_url: original_url)
+      end
+    else
+      title = metadata[:title]
+      # pseud = metadata[:author]
+      works = Work.where(title: title)
+    end
+
+    unless works
+      error = "No works match title: \"#{metadata[:title]}\", author: \"#{metadata[:pseud]}."
+    end
+
+    puts "METADATA: " + metadata.inspect
+    puts "WORKS INSPECT: " +  works.inspect
+    puts "WORKS " + works.map { |w| !w.empty? }
+
+    {
+      original_url: metadata[:original_url],
+      works: works.select(&:present?),
+      error: error
     }
   end
 
@@ -199,7 +227,7 @@ class Api::V2::WorksController < Api::V2::BaseController
     external_authors = success_works.map(&:external_authors).flatten.uniq
     external_authors&.each do |external_author|
       external_author.find_or_invite(archivist)
-      # One of the external author pseuds is its email address so filter that one out 
+      # One of the external author pseuds is its email address so filter that one out
       author_names = external_author.names.reject { |a| a.name == external_author.email }.map(&:name).flatten.join(", ")
       notified_authors << author_names
     end

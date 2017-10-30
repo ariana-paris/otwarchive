@@ -146,7 +146,7 @@ describe "API v2 WorksController - Create works", type: :request do
       before(:all) do
         Language.find_or_create_by(short: "es", name: "Español")
 
-        mock_external
+        ApiHelper.mock_external
 
         archivist = create(:archivist)
 
@@ -226,7 +226,7 @@ describe "API v2 WorksController - Create works", type: :request do
 
     describe "Metadata should be extracted from content if no API metadata is supplied" do
       before(:all) do
-        mock_external
+        ApiHelper.mock_external
 
         archivist = create(:archivist)
 
