@@ -9,11 +9,11 @@ class Api::V2::WorksController < Api::V2::BaseController
     status = error_status(work_searches)
     messages << work_searches_errors(status) unless status == :ok
 
-    results = work_searches&.map do |metadata|
-      find_existing_works(metadata)
-    end
+    results = work_searches&.map { |metadata| find_existing_works(metadata.permit!) }
 
-    render_api_response(status, messages, works: results.flatten)
+    messages << results.flatten.map { |r| r[:messages] }.flatten
+
+    render_api_response(status, messages.flatten, works: results.flatten)
   end
 
   # POST - create a work and invite authors to claim
@@ -108,29 +108,32 @@ class Api::V2::WorksController < Api::V2::BaseController
   # Search for works imported from the provided metadata objects
   def find_existing_works(metadata)
     results = []
-    messages = ""
+    messages = []
     # Search for works - there may be duplicates and if there are multiple urls
     search_results = find_work_by_metadata(metadata)
 
-    puts search_results
-
     if search_results[:works].empty?
       results << { status: :not_found,
-                   work_search: metadata,
+                   original_search: metadata,
                    messages: [search_results[:error]] }
     else
       work_results = search_results[:works].map do |work|
-        puts "WORK: " + work.inspect
-        archive_url = work_url(work)
-        messages << "Work \"#{work.title}\", created on #{work.created_at.to_date.to_s(:iso_date)} was found at \"#{archive_url}\"."
+          archive_url = work_url(work)
 
-        { archive_url: archive_url,
+          message = "Work \"#{work.title}\" created on #{work.created_at.to_date.to_s(:iso_date)} was found at \"#{archive_url}\"."
+messages << message
+
+          {
+            work_search: metadata,
+            archive_url: archive_url,
           created: work.created_at,
-          message: messages }
+          message: message
+          }
       end
+
       results << { status: :found,
                    original_search: metadata,
-                   search_results: work_results,
+                   search_results: work_results.flatten,
                    messages: messages
       }
     end
@@ -159,28 +162,22 @@ class Api::V2::WorksController < Api::V2::BaseController
 
   def find_work_by_metadata(metadata)
     error = ""
-    if metadata[:original_urls]
-      works = metadata[:original_urls].map do |original_url|
-        # We know the url will be identical no need for a call to find_by_url
-        Work.where(imported_from_url: original_url)
-      end
-    else
+    if metadata[:original_urls].blank?
       title = metadata[:title]
       # pseud = metadata[:author]
       works = Work.where(title: title)
+    else
+      # We know the url will be identical no need for a call to find_by_url
+      works = Work.where(imported_from_url: metadata[:original_urls]&.map { |u| u[:url] })
     end
 
-    unless works
+    if works.to_a.empty?
       error = "No works match title: \"#{metadata[:title]}\", author: \"#{metadata[:pseud]}."
     end
 
-    puts "METADATA: " + metadata.inspect
-    puts "WORKS INSPECT: " +  works.inspect
-    puts "WORKS " + works.map { |w| !w.empty? }
-
     {
-      original_url: metadata[:original_url],
-      works: works.select(&:present?),
+      original_url: metadata[:original_urls],
+      works: works.to_a.select(&:present?),
       error: error
     }
   end

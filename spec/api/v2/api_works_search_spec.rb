@@ -13,14 +13,14 @@ describe "v2 Search with valid work URL request" do
   work = FactoryGirl.create(:work, posted: true, imported_from_url: "foo")
   
   it "returns 200 OK" do
-    valid_params = { works: [{ original_urls: %w(bar foo) }] }
+    valid_params = { works: [{ original_urls: [{url: "bar"}, {url: "foo"}] }] }
     post "/api/v2/works/search", params: valid_params.to_json, headers: valid_headers
 
     assert_equal 200, response.status
   end
 
   it "returns the work URL for an imported work" do
-    valid_params = { works: [{ original_urls: %w(foo) }] }
+    valid_params = { works: [{ original_urls: [{url: "foo"}] }] }
     parsed_body = post_search_result(valid_params)
     search_results = parsed_body[:works].first[:search_results]
 
@@ -30,41 +30,32 @@ describe "v2 Search with valid work URL request" do
   end
 
   it "returns the original reference if one was provided" do
-    valid_params = { works: [{ original_urls: [{ id: "123", url: "foo" }] }] }
+    valid_params = { works: [{ id: 123, original_urls: [{ url: "foo" }] }] }
     parsed_body = post_search_result(valid_params)
-
+    search_results = parsed_body[:works].first[:search_results]
+    
     expect(parsed_body[:works].first[:status]).to eq "found"
-    expect(parsed_body[:works].first[:original_id]).to eq "123"
-    expect(parsed_body[:works].first[:original_url]).to eq "foo"
+    expect(parsed_body[:works].first[:original_search][:id]).to eq 123
+    expect(parsed_body[:works].first[:original_search][:original_urls].first[:url]).to eq "foo"
   end
 
   it "returns an error when no works are provided" do
     invalid_params = { works: [] }
     parsed_body = post_search_result(invalid_params)
     
-    puts parsed_body.inspect
-
     expect(parsed_body[:messages].first).to eq "Please provide a list of works to find."
   end
   
   it "returns an error when too many works are provided" do
-    loads_of_items = Array.new(210) { |_| { original_urls: ["url"] } }
+    loads_of_items = Array.new(210) { |_| { original_urls: [{url: "url"}] } }
     valid_params = { works: loads_of_items }
-    parsed_body = post_search_result(valid_params)
-
-    expect(parsed_body[:messages].first).to start_with "Please provide no more than"
-  end
-  
-  it "returns an error when too many URLs are provided" do
-    loads_of_items = Array.new(210) { |_| "url" }
-    valid_params = { works: [{ original_urls: loads_of_items }] }
     parsed_body = post_search_result(valid_params)
 
     expect(parsed_body[:messages].first).to start_with "Please provide no more than"
   end
 
   it "returns a not found message for a work that wasn't found" do
-    valid_params = { works: [{ original_urls: %w(bar) }] }
+    valid_params = { works: [{ original_urls: [{url: "bar"}] }] }
     parsed_body = post_search_result(valid_params)
     
     expect(parsed_body[:works].first[:status]).to eq("not_found")
@@ -72,7 +63,7 @@ describe "v2 Search with valid work URL request" do
   end
 
   it "should only do an exact match on the original url" do
-    valid_params = { works: [{ original_urls: %w(fo food) }] }
+    valid_params = { works: [{ original_urls: [{url: "fo"}] }, { original_urls: [{url: "food"}] }] }
     parsed_body = post_search_result(valid_params)
 
     expect(parsed_body[:works].first[:status]).to eq("not_found")
@@ -83,43 +74,39 @@ describe "v2 Search with valid work URL request" do
 end
 
 describe "v2 API work search without URLs" do
-  it "performs a full search when no URLs are provided" do
-    invalid_params = { works: [{ original_urls: [] }] }
-    parsed_body = post_search_result(invalid_params)
-
-    expect(parsed_body[:messages].first).to eq "Please provide a list of URLs to find."
-  end
-end
-
-describe "v2 API Work Search" do
-  valid_input =  
-    { works: [{ title: api_fields["Title"], creator: "Bar", fandom: "Testing"},
-              { original_url: "435", title: api_fields["Title"], creator: "Foo", fandom: "Testing"}] }
-
-  output = { works: [{ original_url: "123",
-                                works: [{ ao3_url: "works/12435", title: "Title", creator: "Author", fandom: "Testing" }]},
-                              { original_url: "435",
-                                works: []}]}
-
-  it "should take a batch of work fields and return works" do
-    puts valid_input
-    post_search_result(valid_input)
-    assert_equal 200, response.status
-  end
-
-  describe "given a valid request" do
+  valid_input = 
+    { works: [{ title: api_fields[:title], creator: "Bar", fandom: "Testing"},
+              { id: "435", title: "Not found", creator: "Foo", fandom: "Testing"}] }
+  
+  context "given a valid request" do
 
     before :all do
-      parsed_body = post_search_result(valid_input)
-      @search_results = parsed_body[:search_results]
+      create(:work, title: api_fields[:title])
+      @parsed_body = post_search_result(valid_input)
+    end
+  
+    it "performs a full search when no URLs are provided" do
+      invalid_params = { works: [{ title: "Title", original_urls: [] }] }
+      parsed_body = post_search_result(invalid_params)
+  
+      expect(parsed_body[:messages].first).to eq "No works match title: \"Title\", author: \"."
+    end
+  
+    it "takes a batch of work fields and returns works" do
+      post_search_result(valid_input)
+      assert_equal 200, response.status
     end
 
-    it "should return the original id" do
-      expect(@search_results.first[:original_id]).to eq("123")
+    it "returns the original id" do
+      expect(@parsed_body[:works].second[:original_search][:id]).to eq("435")
     end
 
-    it "should return an empty result if no matching works are found" do
-      expect(@search_results.second[:works]).to be_empty
+    it "returns a work URL if a matching works is found" do
+      expect(@parsed_body[:works].first[:search_results].first[:archive_url]).to_not be_empty
+    end
+    
+    it "returns an empty result if no matching works are found" do
+      expect(@parsed_body[:works].second.key?(:search_results)).to be_falsey
     end
   end
 
