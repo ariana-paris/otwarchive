@@ -163,16 +163,16 @@ messages << message
   def find_work_by_metadata(metadata)
     error = ""
     if metadata[:original_urls].blank?
-      title = metadata[:title]
       # pseud = metadata[:author]
-      works = Work.where(title: title)
+      search = WorkSearchForm.new(title: metadata[:title], creators: metadata[:creators])
+      works = search.search_results
     else
-      # We know the url will be identical no need for a call to find_by_url
+      # This is a mass import; we know the url will be identical no need for a call to find_by_url
       works = Work.where(imported_from_url: metadata[:original_urls]&.map { |u| u[:url] })
     end
 
     if works.to_a.empty?
-      error = "No works match title: \"#{metadata[:title]}\", author: \"#{metadata[:pseud]}."
+      error = "No works match title: \"#{metadata[:title]}\", author: \"#{metadata[:creators]}\"."
     end
 
     {

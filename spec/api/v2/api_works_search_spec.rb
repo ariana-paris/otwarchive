@@ -9,7 +9,7 @@ def post_search_result(valid_params)
   JSON.parse(response.body, symbolize_names: true)
 end
 
-describe "v2 Search with valid work URL request" do
+describe "v2 API work search with URLs" do
   work = FactoryGirl.create(:work, posted: true, imported_from_url: "foo")
   
   it "returns 200 OK" do
@@ -32,7 +32,6 @@ describe "v2 Search with valid work URL request" do
   it "returns the original reference if one was provided" do
     valid_params = { works: [{ id: 123, original_urls: [{ url: "foo" }] }] }
     parsed_body = post_search_result(valid_params)
-    search_results = parsed_body[:works].first[:search_results]
     
     expect(parsed_body[:works].first[:status]).to eq "found"
     expect(parsed_body[:works].first[:original_search][:id]).to eq 123
@@ -73,23 +72,109 @@ describe "v2 Search with valid work URL request" do
   end
 end
 
-describe "v2 API work search without URLs" do
-  valid_input = 
-    { works: [{ title: api_fields[:title], creator: "Bar", fandom: "Testing"},
-              { id: "435", title: "Not found", creator: "Foo", fandom: "Testing"}] }
-  
-  context "given a valid request" do
 
-    before :all do
-      create(:work, title: api_fields[:title])
-      @parsed_body = post_search_result(valid_input)
+describe "v2 API full work search" do
+  # Searches
+  search_found_title = { title: api_fields[:title] }
+  search_found_pseud = { title: api_fields[:title], creators: "Bar", fandom: "Testing" }
+  search_found_login = { id: "789", title: api_fields[:title] + " Two", creators: "foo", fandom: "Testing" }
+  search_not_found = { id: "435", title: "Not found", creators: "Foo", fandom: "Testing" }
+
+  before(:each) do
+    works.each(&:save)
+    update_and_refresh_indexes("work")
+  end
+  
+  after :all do
+    Work.destroy_all
+    delete_index "work"
+  end
+  
+  # Works
+  let!(:users) {
+    user = User.find_by(login: "foo")
+    user2 = User.find_by(login: "bar")
+    user ||= create(:user, login: "foo")
+    user2 ||= create(:user, login: "bar")
+    [user, user2]
+  }
+  let!(:pseud) { create(:pseud, name: "Bar", user_id: users.first.id) }
+  let(:works) {
+    w1 = create(:posted_work, title: api_fields[:title], authors: [pseud])
+    w2 = create(:posted_work, title: api_fields[:title] + " Two", authors: [users.second.default_pseud])
+    w3 = create(:posted_work, title: api_fields[:title])
+    w4 = create(:posted_work, title: "Something completely different")
+    update_and_refresh_indexes("work")
+    [w1, w2, w3, w4]
+  }
+  
+  context "searching for a non-existent work" do
+    let!(:result) { post_search_result(works: [search_not_found]) }
+    
+    it "responds with a 200 OK" do
+      assert_equal "ok", result[:status]
     end
+    
+    it "returns the original search query" do
+      result_search = result[:works].first[:original_search]
+      expect(result_search).to eq(search_not_found)
+    end
+    
+    it "returns an empty result" do
+      expect(result.key?(:search_results)).to be_falsey
+    end
+  end
   
-    it "performs a full search when no URLs are provided" do
-      invalid_params = { works: [{ title: "Title", original_urls: [] }] }
-      parsed_body = post_search_result(invalid_params)
+  context "searching for existing works" do
+    let!(:result) { post_search_result(works: [search_found_title, search_found_login, search_found_pseud]) }
+
+    it "responds with a 200 OK" do
+      result = post_search_result(works: [search_found_title])
+      assert_equal 200, response.status
+      assert_equal "ok", result[:status]
+    end
+    
+    it "returns the original search query" do
+      result = post_search_result(works: [search_found_title])
+      expect(result[:works].first[:original_search]).to eq(search_found_title)
+    end
+    
+    it "matches works by matching title words ('api', 'title')" do
+      result = post_search_result(works: [search_found_title])[:works].first
+      assert_equal 3, result[:search_results].size 
+      expect(result[:works].first[:search_results]).to_not be_empty 
+    end
+
+    it "returns all works that match a partial title" do
+      result = post_search_result(works: [ { title: "Title" }])[:works].first
+      result[:search_results].size.should be > 1
+      result[:search_results].first[:archive_url].should_not be_nil
+    end
+    
+    it "matches an exact pseud" do
+      result = post_search_result(works: [search_found_pseud])[:works].first
+      assert_equal search_found_pseud, result[:original_search]
+      assert_equal 1, result[:search_results].size
+      result[:search_results].first[:archive_url].should_not be_nil
+    end
+    
+    it "matches an exact login" do
+      result = post_search_result(works: [search_found_login])[:works].first
+      assert_equal search_found_login, result[:original_search]
+      assert_equal 1, result[:search_results].size
+      result[:search_results].first[:archive_url].should_not be_nil
+    end
+  end
   
-      expect(parsed_body[:messages].first).to eq "No works match title: \"Title\", author: \"."
+end
+
+
+describe "v2 API work search without URLs" do
+ 
+  context "not found work" do
+
+    after :all do
+      clean_the_database
     end
   
     it "takes a batch of work fields and returns works" do
@@ -97,16 +182,20 @@ describe "v2 API work search without URLs" do
       assert_equal 200, response.status
     end
 
-    it "returns the original id" do
-      expect(@parsed_body[:works].second[:original_search][:id]).to eq("435")
+    it "returns the original id if one was provided" do
+      
     end
 
-    it "returns a work URL if a matching works is found" do
-      expect(@parsed_body[:works].first[:search_results].first[:archive_url]).to_not be_empty
+    it "returns the work's details if a work with a matching title and pseud is found" do
+      expect(@first_result[:search_results].first[:archive_url]).to_not be_empty
+    end
+
+    it "returns the work's details if a work with a matching title and pseud is found" do
+      expect(@third_result[:search_results].first[:archive_url]).to_not be_empty
     end
     
     it "returns an empty result if no matching works are found" do
-      expect(@parsed_body[:works].second.key?(:search_results)).to be_falsey
+      
     end
   end
 
