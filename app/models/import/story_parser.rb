@@ -15,14 +15,11 @@ class Import::StoryParser
                     rating_string: 'Rating',
                     warning_string: 'Warning',
                     relationship_string: 'Relationship|Pairing',
-                    character_string: 'Character'
-  }.freeze
+                    character_string: 'Character' }.freeze
   REQUIRED_META = { title: 'Title',
                     summary: 'Summary',
                     revised_at: 'Date|Posted|Posted on|Posted at',
-                    chapter_title: 'Chapter Title'
-  }.freeze
-
+                    chapter_title: 'Chapter Title' }.freeze
 
   # Use this for raising custom error messages
   # (so that we can distinguish them from unexpected exceptions due to
@@ -260,10 +257,10 @@ class Import::StoryParser
       # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
       name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
       external_author_name = name
-      external_author = ExternalAuthor.find_or_create_by_email(email)
+      external_author = ExternalAuthor.find_or_create_by(email: email)
       unless name.blank?
         external_author_name = ExternalAuthorName.where(name: name, external_author_id: external_author.id).first ||
-          ExternalAuthorName.new(name: name)
+                               ExternalAuthorName.new(name: name)
         external_author.external_author_names << external_author_name
         external_author.save
       end
@@ -291,7 +288,7 @@ class Import::StoryParser
     if source.nil?
       download_with_timeout(location)
     else
-      eval("download_from_#{source.downcase}(location)")
+      send("download_from_#{source.downcase}", location)
     end
   end
 
@@ -478,9 +475,9 @@ class Import::StoryParser
   end
 
   # We clean the text as if it had been submitted as the content of a chapter
-  def clean_storytext(storytext)
-    storytext = storytext.encode("UTF-8", invalid: :replace, undef: :replace, replace: "") unless storytext.encoding.name == "UTF-8"
-    sanitize_value("content", storytext)
+  def clean_storytext(story_text)
+    story_text = story_text.encode("UTF-8", invalid: :replace, undef: :replace, replace: "") unless story_text.encoding.name == "UTF-8"
+    sanitize_value("content", story_text)
   end
 
   # works conservatively -- doesn't split on

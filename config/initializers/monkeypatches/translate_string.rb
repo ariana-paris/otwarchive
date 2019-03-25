@@ -28,10 +28,6 @@ module I18n
     end
     alias :ts :translate_string
   end
-
-  def ts(*args)
-    I18n.translate_string(*args)
-  end
 end
 
 module AbstractController

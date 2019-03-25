@@ -169,6 +169,7 @@ group :test, :development do
 end
 
 group :development do
+  gem 'rb-readline'
   gem 'factory_girl_rails'
   gem 'bundler-audit'
   gem 'active_record_query_trace', '~> 1.6', '>= 1.6.1'

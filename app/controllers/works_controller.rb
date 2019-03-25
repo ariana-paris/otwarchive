@@ -84,10 +84,8 @@ class WorksController < ApplicationController
     @page_subtitle = index_page_title
 
     if logged_in? && @tag
-      @favorite_tag = @current_user.favorite_tags
-                        .where(tag_id: @tag.id).first ||
-        FavoriteTag
-          .new(tag_id: @tag.id, user_id: @current_user.id)
+      @favorite_tag = @current_user.favorite_tags.where(tag_id: @tag.id).first ||
+                      FavoriteTag.new(tag_id: @tag.id, user_id: @current_user.id)
     end
 
     if @owner.present?
@@ -99,7 +97,7 @@ class WorksController < ApplicationController
         # Note: we only cache some first initial number of pages since those are biggest bang for
         # the buck -- users don't often go past them
         if use_caching? && params[:work_search].blank? && params[:fandom_id].blank? &&
-          (params[:page].blank? || params[:page].to_i <= ArchiveConfig.PAGES_TO_CACHE)
+           (params[:page].blank? || params[:page].to_i <= ArchiveConfig.PAGES_TO_CACHE)
           # the subtag is for eg collections/COLL/tags/TAG
           subtag = @tag.present? && @tag != @owner ? @tag : nil
           user = logged_in? || logged_in_as_admin? ? 'logged_in' : 'logged_out'
@@ -223,7 +221,7 @@ class WorksController < ApplicationController
     if current_user.respond_to?(:subscriptions)
       @subscription = current_user.subscriptions.where(subscribable_id: @work.id,
                                                        subscribable_type: 'Work').first ||
-        current_user.subscriptions.build(subscribable: @work)
+                      current_user.subscriptions.build(subscribable: @work)
     end
 
     render :show
@@ -349,7 +347,7 @@ class WorksController < ApplicationController
     end
 
     @work.preview_mode = !!(params[:preview_button] || params[:edit_button] ||
-      params[:cancel_coauthor_button])
+                            params[:cancel_coauthor_button])
     @work.attributes = work_params
     @chapter.attributes = work_params[:chapter_attributes] if work_params[:chapter_attributes]
     @work.ip_address = request.remote_ip
@@ -580,8 +578,8 @@ class WorksController < ApplicationController
     @works = @works.where(id: params[:work_ids]) if params[:work_ids]
 
     @works_by_fandom = @works.joins(:taggings)
-                         .joins("inner join tags on taggings.tagger_id = tags.id AND tags.type = 'Fandom'")
-                         .select('distinct tags.name as fandom, works.id, works.title, works.posted').group_by(&:fandom)
+                             .joins("inner join tags on taggings.tagger_id = tags.id AND tags.type = 'Fandom'")
+                             .select('distinct tags.name as fandom, works.id, works.title, works.posted').group_by(&:fandom)
   end
 
   def edit_multiple
