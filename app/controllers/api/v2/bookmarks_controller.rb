@@ -192,7 +192,8 @@ class Api::V2::BookmarksController < Api::V2::BaseController
         rating_string: params[:rating_string] || "",
         category_string: params[:category_string] ? params[:category_string].to_s.split(",") : [], # category is actually an array on bookmarks
         relationship_string: params[:relationship_string] || "",
-        character_string: params[:character_string] || ""
+        character_string: params[:character_string] || "",
+        language_id: Language.find_by(short: (params[:language_code] || "en"))&.id
       },
       bookmarker_notes: params[:bookmarker_notes],
       tag_string: params[:tag_string] || "",

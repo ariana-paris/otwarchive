@@ -14,6 +14,7 @@ describe "API v2 BookmarksController", type: :request do
                category_string: ["M/M"],
                relationship_string: "Starsky/Hutch",
                character_string: "Starsky,hutch",
+               language_code: "es",
                bookmarker_notes: "<p>Notes</p>",
                tag_string: "youpi",
                collection_names: "",
@@ -21,6 +22,7 @@ describe "API v2 BookmarksController", type: :request do
                rec: "0" }
 
   before do
+    Language.find_or_create_by(short: "es", name: "Español")
     ApiHelper.mock_external
   end
 
@@ -47,6 +49,20 @@ describe "API v2 BookmarksController", type: :request do
            }.to_json,
            headers: valid_headers
       assert_equal 200, response.status
+    end
+
+    it "creates a bookmarks with all fields filled in" do
+      pseud_id = archivist.default_pseud_id
+      post "/api/v2/bookmarks",
+           params: { archivist: archivist.login,
+                     bookmarks: [ bookmark ]
+           }.to_json,
+           headers: valid_headers
+      bookmarks = Bookmark.where(pseud_id: pseud_id)
+      bookmarkable = bookmarks.first&.bookmarkable
+      expect(bookmarkable).to_not be_nil
+      assert_equal bookmarkable.title, bookmark[:title]
+      assert_equal bookmarkable.language_id, Language.find_by(short: "es").id
     end
 
     it "does not create duplicate bookmarks for the same archivist and external URL" do
