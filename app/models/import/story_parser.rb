@@ -1,11 +1,13 @@
 # Parse stories from other websites and uploaded files, looking for metadata to harvest
 # and put into the archive.
 #
-class StoryParser
+class Import::StoryParser
   require 'timeout'
   require 'nokogiri'
   require 'mechanize'
   require 'open-uri'
+  include Import::ImportConstants
+  include Import::ExternalParsers
   include HtmlCleaner
 
   OPTIONAL_META = { notes: 'Note',
@@ -33,44 +35,6 @@ class StoryParser
   # These attributes need to be copied from the work to the chapter
   CHAPTER_ATTRIBUTES_ALSO = { revised_at: :published_at }.freeze
 
-  ### NOTE ON KNOWN SOURCES
-  # These lists will stop with the first one it matches, so put more-specific matches
-  # towards the front of the list.
-
-  # places for which we have a custom parse_story_from_[source] method
-  # for getting information out of the downloaded text
-  KNOWN_STORY_PARSERS = %w[deviantart dw lj].freeze
-
-  # places for which we have a custom parse_author_from_[source] method
-  # which returns an external_author object including an email address
-  KNOWN_AUTHOR_PARSERS = %w[lj].freeze
-
-  # places for which we have a download_story_from_[source]
-  # used to customize the downloading process
-  KNOWN_STORY_LOCATIONS = %w[lj].freeze
-
-  # places for which we have a download_chaptered_from
-  # to get a set of chapters all together
-  CHAPTERED_STORY_LOCATIONS = %w[ffnet thearchive_net efiction quotev].freeze
-
-  # regular expressions to match against the URLS
-  SOURCE_LJ = '((live|dead|insane)journal\.com)|journalfen(\.net|\.com)|dreamwidth\.org'.freeze
-  SOURCE_DW = 'dreamwidth\.org'.freeze
-  SOURCE_FFNET = '(^|[^A-Za-z0-9-])fanfiction\.net'.freeze
-  SOURCE_DEVIANTART = 'deviantart\.com'.freeze
-  SOURCE_THEARCHIVE_NET = 'the\-archive\.net'.freeze
-  SOURCE_EFICTION = 'viewstory\.php'.freeze
-  SOURCE_QUOTEV = 'quotev\.com'.freeze
-
-  # time out if we can't download fast enough
-  STORY_DOWNLOAD_TIMEOUT = 60
-  MAX_CHAPTER_COUNT = 200
-
-  # To check for duplicate chapters, take a slice this long out of the story
-  # (in characters)
-  DUPLICATE_CHAPTER_LENGTH = 10_000
-
-
   # Import many stories
   def import_many(urls, options = {})
     # Try to get the works
@@ -83,7 +47,7 @@ class StoryParser
         response = download_and_parse_work(url, options)
         work = response[:work]
         if response[:status] == :created
-          if work && work.save
+          if work&.save
             work.chapters.each(&:save)
             works << work
           else
@@ -163,37 +127,6 @@ class StoryParser
 
   ### OLD PARSING METHODS
 
-  # Import many stories
-  def import_from_urls(urls, options = {})
-    # Try to get the works
-    works = []
-    failed_urls = []
-    errors = []
-    @options = options
-    urls.each do |url|
-      begin
-        work = download_and_parse_story(url, options)
-        if work && work.save
-          work.chapters.each(&:save)
-          works << work
-        else
-          failed_urls << url
-          errors << work.errors.values.join(", ")
-          work.delete if work
-        end
-      rescue Timeout::Error
-        failed_urls << url
-        errors << "Import has timed out. This may be due to connectivity problems with the source site. Please try again in a few minutes, or check Known Issues to see if there are import problems with this site."
-        work.delete if work
-      rescue Error => exception
-        failed_urls << url
-        errors << "We couldn't successfully import that work, sorry: #{exception.message}"
-        work.delete if work
-      end
-    end
-    [works, failed_urls, errors]
-  end
-
   # Downloads a story and passes it on to the parser.
   # If the URL of the story is from a site for which we have special rules
   # (eg, downloading from a livejournal clone, you want to use ?format=light
@@ -205,11 +138,10 @@ class StoryParser
     source = get_source_if_known(CHAPTERED_STORY_LOCATIONS, location)
     if source.nil?
       story = download_text(location)
-      work = parse_story(story, location, options)
+      parse_story(story, location, options)
     else
-      work = download_and_parse_chaptered_story(source, location, options)
+      download_and_parse_chaptered_story(source, location, options)
     end
-    work
   end
 
   # Given an array of urls for chapters of a single story,
@@ -377,34 +309,6 @@ class StoryParser
     work
   end
 
-  def parse_author_from_lj(location)
-    return if location !~ %r{^(?:http:\/\/)?(?<lj_name>[^.]*).(?<site_name>livejournal\.com|dreamwidth\.org|insanejournal\.com|journalfen.net)}
-    email = ""
-    lj_name = Regexp.last_match[:lj_name]
-    site_name = Regexp.last_match[:site_name]
-    if lj_name == "community"
-      # whups
-      post_text = download_text(location)
-      doc = Nokogiri.parse(post_text)
-      lj_name = doc.xpath("/html/body/div[2]/div/div/div/table/tbody/tr/td[2]/span/a[2]/b").content
-    end
-    profile_url = "http://#{lj_name}.#{site_name}/profile"
-    lj_profile = download_text(profile_url)
-    doc = Nokogiri.parse(lj_profile)
-    contact = doc.css('div.contact').inner_html
-    if contact.present?
-      contact.gsub! '<p class="section_body_title">Contact:</p>', ""
-      contact.gsub! /<\/?(span|i)>/, ""
-      contact.delete! "\n"
-      contact.gsub! "<br/>", ""
-      if contact =~ /(.*@.*\..*)/
-        email = Regexp.last_match[1]
-      end
-    end
-    email = "#{lj_name}@#{site_name}" if email.blank?
-    parse_author_common(email, lj_name)
-  end
-
   def parse_author_from_unknown(_location)
     # for now, nothing
     nil
@@ -413,7 +317,7 @@ class StoryParser
   def parse_author_common(email, name)
     if name.present? && email.present?
       # convert to ASCII and strip out invalid characters (everything except alphanumeric characters, _, @ and -)
-      name = name.to_ascii.gsub(/[^\w[ \-@.]]/u, "")
+      name = name.to_ascii.gsub(/[^\w[ \-@\.]]/u, "")
       external_author = ExternalAuthor.find_or_create_by(email: email)
       external_author_name = external_author.default_name
       unless name.blank?
@@ -449,83 +353,6 @@ class StoryParser
       send("download_from_#{source.downcase}", location)
     end
   end
-
-  # canonicalize the url for downloading from lj or clones
-  def download_from_lj(location)
-    url = location
-    url.gsub!(/\#(.*)$/, "") # strip off any anchor information
-    url.gsub!(/\?(.*)$/, "") # strip off any existing params at the end
-    url.gsub!('_', '-') # convert underscores in usernames to hyphens
-    url += "?format=light" # go to light format
-    text = download_with_timeout(url)
-
-    if text.match(/adult_check/)
-      Timeout::timeout(STORY_DOWNLOAD_TIMEOUT) {
-        begin
-          agent = Mechanize.new
-          url.include?("dreamwidth") ? form = agent.get(url).forms.first : form = agent.get(url).forms.third
-          page = agent.submit(form, form.buttons.first) # submits the adult concepts form
-          text = page.body.force_encoding(agent.page.encoding)
-        rescue
-          text = ""
-        end
-      }
-    end
-    text
-  end
-
-  # grab all the chapters of the story from ff.net
-  def download_chaptered_from_ffnet(_location)
-    raise Error, "Sorry, Fanfiction.net does not allow imports from their site."
-  end
-
-  def download_chaptered_from_quotev(_location)
-    raise Error, "Sorry, Quotev.com does not allow imports from their site."
-  end
-
-  # this is an efiction archive but it doesn't handle chapters normally
-  # best way to handle is to get the full story printable version
-  # We have to make it a download-chaptered because otherwise it gets sent to the
-  #  generic efiction version since chaptered sources are checked first
-  def download_chaptered_from_thearchive_net(location)
-    if location.match(/^(.*)\/.*viewstory\.php.*[^p]sid=(\d+)($|&)/i)
-      location = "#{$1}/viewstory.php?action=printable&psid=#{$2}"
-    end
-    text = download_with_timeout(location)
-    text.sub!('</style>', '</style></head>') unless text.match('</head>')
-    [text]
-  end
-
-  # grab all the chapters of a story from an efiction-based site
-  def download_chaptered_from_efiction(location)
-    chapter_contents = []
-    if location.match(/^(?<site>.*)\/.*viewstory\.php.*sid=(?<storyid>\d+)($|&)/i)
-      site = Regexp.last_match[:site]
-      storyid = Regexp.last_match[:storyid]
-      chapnum = 1
-      last_body = ""
-      Timeout::timeout(STORY_DOWNLOAD_TIMEOUT) do
-        loop do
-          url = "#{site}/viewstory.php?action=printable&sid=#{storyid}&chapter=#{chapnum}"
-          body = download_with_timeout(url)
-          # get a section to check that this isn't a duplicate of previous chapter
-          body_to_check = body.slice(10, DUPLICATE_CHAPTER_LENGTH)
-          if body.nil? || body_to_check == last_body || chapnum > MAX_CHAPTER_COUNT || body.match(/<div class='chaptertitle'> by <\/div>/) || body.match(/Access denied./) || body.match(/Chapter : /)
-            break
-          end
-          # save the value to check for duplicate chapter
-          last_body = body_to_check
-
-          # clean up the broken head in many efiction printable sites
-          body.sub!('</style>', '</style></head>') unless body.match('</head>')
-          chapter_contents << body
-          chapnum += 1
-        end
-      end
-    end
-    chapter_contents
-  end
-
 
   # This is the heavy lifter, invoked by all the story and chapter parsers.
   # It takes a single string containing the raw contents of a story, parses it with
@@ -583,145 +410,15 @@ class StoryParser
 
     # Story content - Look for progressively less specific containers or grab everything
     element = @doc.at_css('.chapter-content') || @doc.at_css('body') || @doc.at_css('html') || @doc
-    storytext = element ? element.inner_html : story
+    story_text = element ? element.inner_html : story
 
     meta = {}
     meta.merge!(scan_text_for_meta(story_head, detect_tags)) unless story_head.blank?
     meta.merge!(scan_text_for_meta(story, detect_tags))
     meta[:title] ||= @doc.css('title').inner_html
     work_params[:chapter_attributes][:title] = meta.delete(:chapter_title)
-    work_params[:chapter_attributes][:content] = clean_storytext(storytext)
+    work_params[:chapter_attributes][:content] = clean_storytext(story_text)
     work_params.merge!(meta)
-  end
-
-  # Parses a story from livejournal or a livejournal equivalent (eg, dreamwidth, insanejournal)
-  # Assumes that we have downloaded the story from one of those equivalents (ie, we've downloaded
-  # it in format=light which is a stripped-down plaintext version.)
-  #
-  def parse_story_from_lj(_story, detect_tags = true)
-    work_params = { chapter_attributes: {} }
-
-    # in LJ "light" format, the story contents are in the second div
-    # inside the body.
-    body = @doc.css("body")
-    storytext = body.css("article.b-singlepost-body").inner_html
-    storytext = body.inner_html if storytext.empty?
-
-    # cleanup the text
-    # storytext.gsub!(/<br\s*\/?>/i, "\n") # replace the breaks with newlines
-    storytext = clean_storytext(storytext)
-
-    work_params[:chapter_attributes][:content] = storytext
-    work_params[:title] = @doc.css("title").inner_html
-    work_params[:title].gsub! /^[^:]+: /, ""
-    work_params.merge!(scan_text_for_meta(storytext, detect_tags))
-
-    date = @doc.css("time.b-singlepost-author-date")
-    unless date.empty?
-      work_params[:revised_at] = convert_revised_at(date.first.inner_text)
-    end
-
-    work_params
-  end
-
-  def parse_story_from_dw(_story, detect_tags = true)
-    work_params = { chapter_attributes: {} }
-
-    body = @doc.css("body")
-    content_divs = body.css("div.contents")
-
-    if content_divs[0].present?
-      # Get rid of the DW metadata table
-      content_divs[0].css("div.currents, ul.entry-management-links, div.header.inner, span.restrictions, h3.entry-title").each(&:remove)
-      storytext = content_divs[0].inner_html
-    else
-      storytext = body.inner_html
-    end
-
-    # cleanup the text
-    storytext = clean_storytext(storytext)
-
-    work_params[:chapter_attributes][:content] = storytext
-    work_params[:title] = @doc.css("title").inner_html
-    work_params[:title].gsub! /^[^:]+: /, ""
-    work_params.merge!(scan_text_for_meta(storytext, detect_tags))
-
-    font_blocks = @doc.xpath('//font')
-    unless font_blocks.empty?
-      date = font_blocks.first.inner_text
-      work_params[:revised_at] = convert_revised_at(date)
-    end
-
-    # get the date
-    date = @doc.css("span.date").inner_text
-    work_params[:revised_at] = convert_revised_at(date)
-
-    work_params
-  end
-
-  def parse_story_from_deviantart(_story, detect_tags = true)
-    work_params = { chapter_attributes: {} }
-    storytext = ""
-    notes = ""
-
-    body = @doc.css("body")
-    title = @doc.css("title").inner_html.gsub /\s*on deviantart$/i, ""
-
-    # Find the image (original size) if it's art
-    image_full = body.css("div.dev-view-deviation img.dev-content-full")
-    unless image_full[0].nil?
-      storytext = "<center><img src=\"#{image_full[0]["src"]}\"></center>"
-    end
-
-    # Find the fic text if it's fic (needs the id for disambiguation, the "deviantART loves you" bit in the footer has the same class path)
-    text_table = body.css(".grf-indent > div:nth-child(1)")[0]
-    unless text_table.nil?
-      # Try to remove some metadata (title and author) from the work's text, if possible
-      # Try to remove the title: if it exists, and if it's the same as the browser title
-      if text_table.css("h1")[0].present? && title && title.match(text_table.css("h1")[0].text)
-        text_table.css("h1")[0].remove
-      end
-
-      # Try to remove the author: if it exists, and if it follows a certain pattern
-      if text_table.css("small")[0].present? && text_table.css("small")[0].inner_html.match(/by ~.*?<a class="u" href=/m)
-        text_table.css("small")[0].remove
-      end
-      storytext = text_table.inner_html
-    end
-
-    # cleanup the text
-    storytext.gsub!(%r{<br\s*\/?>}i, "\n") # replace the breaks with newlines
-    storytext = clean_storytext(storytext)
-    work_params[:chapter_attributes][:content] = storytext
-
-    # Find the notes
-    content_divs = body.css("div.text-ctrl div.text")
-    notes = content_divs[0].inner_html unless content_divs[0].nil?
-
-    # cleanup the notes
-    notes.gsub!(%r{<br\s*\/?>}i, "\n") # replace the breaks with newlines
-    notes = clean_storytext(notes)
-    work_params[:notes] = notes
-
-    work_params.merge!(scan_text_for_meta(notes, detect_tags))
-    work_params[:title] = title
-
-    body.css("div.dev-title-container h1 a").each do |node|
-      if node["class"] != "u"
-        work_params[:title] = node.inner_html
-      end
-    end
-
-    tags = []
-    @doc.css("div.dev-about-cat-cc a.h").each { |node| tags << node.inner_html }
-    work_params[:freeform_string] = clean_tags(tags.join(ArchiveConfig.DELIMITER_FOR_OUTPUT))
-
-    details = @doc.css("div.dev-right-bar-content span[title]")
-    unless details[0].nil?
-      work_params[:revised_at] = convert_revised_at(details[0].inner_text)
-    end
-
-    work_params
   end
 
   # Move and/or copy any meta attributes that need to be on the chapter rather
@@ -787,7 +484,7 @@ class StoryParser
 
   def download_with_timeout(location, limit = 10)
     story = ""
-    Timeout.timeout(STORY_DOWNLOAD_TIMEOUT) do
+    Timeout.timeout(Import::ImportConstants::STORY_DOWNLOAD_TIMEOUT) do
       begin
         # we do a little cleanup here in case the user hasn't included the 'http://'
         # or if they've used capital letters or an underscore in the hostname
@@ -829,7 +526,7 @@ class StoryParser
 
   def get_source_if_known(known_sources, location)
     known_sources.each do |source|
-      pattern = Regexp.new(eval("SOURCE_#{source.upcase}"), Regexp::IGNORECASE)
+      pattern = Regexp.new(eval("SOURCE_#{source.upcase}"))
       return source if location.match(pattern)
     end
     nil
@@ -841,9 +538,9 @@ class StoryParser
   end
 
   # We clean the text as if it had been submitted as the content of a chapter
-  def clean_storytext(storytext)
-    storytext = storytext.encode("UTF-8", invalid: :replace, undef: :replace, replace: "") unless storytext.encoding.name == "UTF-8"
-    sanitize_value("content", storytext)
+  def clean_storytext(story_text)
+    story_text = story_text.encode("UTF-8", invalid: :replace, undef: :replace, replace: "") unless story_text.encoding.name == "UTF-8"
+    sanitize_value("content", story_text)
   end
 
   # works conservatively -- doesn't split on

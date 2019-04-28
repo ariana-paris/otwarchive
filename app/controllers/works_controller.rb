@@ -494,7 +494,7 @@ class WorksController < ApplicationController
   # import a single work (possibly with multiple chapters)
   def import_single(urls, options)
     # try the import
-    storyparser = StoryParser.new
+    storyparser = Import::StoryParser.new
 
     begin
       @work = if urls.size == 1
@@ -505,7 +505,7 @@ class WorksController < ApplicationController
     rescue Timeout::Error
       flash.now[:error] = ts('Import has timed out. This may be due to connectivity problems with the source site. Please try again in a few minutes, or check Known Issues to see if there are import problems with this site.')
       render(:new_import) && return
-    rescue StoryParser::Error => exception
+    rescue Import::StoryParser::Error => exception
       flash.now[:error] = ts("We couldn't successfully import that work, sorry: %{message}", message: exception.message)
       render(:new_import) && return
     end
@@ -531,8 +531,8 @@ class WorksController < ApplicationController
   # import multiple works
   def import_multiple(urls, options)
     # try a multiple import
-    storyparser = StoryParser.new
-    @works, failed_urls, errors = storyparser.import_from_urls(urls, options)
+    storyparser = Import::StoryParser.new
+    @works, failed_urls, errors = storyparser.import_many(urls, options)
 
     # collect the errors neatly, matching each error to the failed url
     unless failed_urls.empty?

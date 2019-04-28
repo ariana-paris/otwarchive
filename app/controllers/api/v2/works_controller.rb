@@ -149,7 +149,7 @@ class Api::V2::WorksController < Api::V2::BaseController
     if work_status == :ok
       urls = external_work[:chapter_urls]
       original_url = urls.first
-      storyparser = StoryParser.new
+      storyparser = Import::StoryParser.new
       options = story_parser_options(archivist, external_work)
       begin
         response = storyparser.import_chapters_into_story(urls, options)

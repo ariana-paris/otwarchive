@@ -97,10 +97,10 @@ describe WorksController do
   describe "import_multiple" do
     it "should display the correct error when an error occurs" do
       works_failed_errors = [[], ["url1"], ["error 1", "error 2"]]
-      allow_any_instance_of(StoryParser).to receive(:import_from_urls).and_return(works_failed_errors)
+      allow_any_instance_of(StoryParser).to receive(:import_many).and_return(works_failed_errors)
       expect(controller.send(:import_multiple, ["url1"], {})).to rescue # stop it whingeing about the response
       expect(flash[:error]).to eq "<h3>Failed Imports</h3><dl><dt>url1</dt><dd>error 1</dd>\n<dt></dt><dd>error 2</dd></dl>"
-      allow_any_instance_of(StoryParser).to receive(:import_from_urls).and_call_original
+      allow_any_instance_of(StoryParser).to receive(:import_many).and_call_original
     end
   end
 end
