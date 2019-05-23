@@ -1,0 +1,87 @@
+version: '3'
+
+# To run and build the otwarchive image for the first time or when you've made changes:
+#           docker-compose up --build
+#
+# To run in the background without rebuilding otwarchive:
+#           docker-compose up -d
+#
+# To run in the foreground with visible logging without rebuilding otwarchive:
+#           docker-compose up
+#
+# To run commands in the dockerised otwarchive after starting the services:
+#           docker-compose run otwarchive bundle exec rake search:index_works
+
+services:
+  otwarchive:
+    build: .
+    image: otw_otwarchive
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+      OTW_MYSQL_HOST: mysql
+      OTW_ES_URL: elasticsearch:9200
+      OTW_REDIS_URL: redis:6379
+      OTW_MEMCACHED_URL: memcached:11211
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+      - memcached
+    links:
+      - mysql
+      - redis
+      - elasticsearch
+      - memcached
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.7.0
+    container_name: otw_elasticsearch
+    restart: always
+    volumes:
+    - ~/Documents/otwcode/docker_data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+    - 9200:9200
+    - 9300:9300
+    environment:
+      - discovery.type=single-node # https://github.com/elastic/elasticsearch/issues/25067
+
+  mysql:
+    image: mysql:5.7.23
+    container_name: otw_mysql
+    command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=32505856
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ~/Documents/otwcode/docker_data/mysql:/var/lib/mysql
+    ports:
+      - 13306:3306
+
+  redis:
+    image: redis:3.2.1
+    container_name: otw_redis
+    restart: always
+    ports:
+    - 6379:6379
+
+  memcached:
+    image: memcached:latest
+    container_name: otw_memcached
+    restart: always
+    ports:
+    - 11211:11211
+
+  resque:
+    image: otw_otwarchive
+    container_name: otw_resque
+    links:
+      - redis
+    environment:
+      QUEUE: "*"
+      RAILS_ENV: development
+      OTW_MYSQL_HOST: mysql
+      OTW_REDIS_URL: redis:6379
+    # bundle exec is the entry point in Dockerfile so no need to specify it
+    command: rake environment resque:work

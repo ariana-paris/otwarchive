@@ -59,8 +59,8 @@ ALT_LOGO: 'Archive of Our Own'
 OTWLOGO: 'OTWLogo.png'
 OTWALT_LOGO: 'OTW Logo:closing the circle of the copyright symbol, it symbolizes our creative engagement with media: participating and not just consuming.'
 REVISION: ''
-ES_URL: 'http://127.0.0.1:9400'
-MEMCACHED_URL: '127.0.0.1'
+ES_URL:  <%= (ENV["OTW_ES_URL"] || "127.0.0.1:9400") %>
+MEMCACHED_URL: <%= (ENV["OTW_MEMCACHED_URL"] || "127.0.0.1:11211" ) %>
 
 # tag settings
 DELIMITER_FOR_INPUT: ','  # if you change this, you will need to change

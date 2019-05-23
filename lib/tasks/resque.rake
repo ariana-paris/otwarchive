@@ -8,7 +8,7 @@ namespace :resque do
     require 'resque/scheduler/tasks'
 
     # you probably already have this somewhere
-    # Resque.redis = 'localhost:6379'
+    Resque.redis = ENV["OTW_REDIS_URL"] || 'localhost:6379'
 
     # If you want to be able to dynamically change the schedule,
     # uncomment this line.  A dynamic schedule can be updated via the

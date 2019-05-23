@@ -1,0 +1,6 @@
+.git*
+.idea/
+log/*
+tmp/*
+Dockerfile
+README.rdoc

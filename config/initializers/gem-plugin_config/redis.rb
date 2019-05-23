@@ -16,7 +16,7 @@ unless ENV['TRAVIS']
   end
 end
 
-redis_configs = YAML.load_file(rails_root + '/config/redis.yml')
+redis_configs = YAML.load(ERB.new(File.read(rails_root + '/config/redis.yml')).result)
 redis_configs.each_pair do |name, redis_config|
   redis_host, redis_port = redis_config[rails_env].split(":")
   redis_connection = Redis.new(host: redis_host, port: redis_port)
