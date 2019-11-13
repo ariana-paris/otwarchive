@@ -1,0 +1,16 @@
+onComment:
+  set:
+    - Awaiting Review
+
+onApproved:
+  remove:
+    - Awaiting Review
+  set:
+    - "Reviewed: Ready to Merge"
+
+onChangesRequested:
+  remove:
+    - Awaiting Review
+    - "Reviewed: Ready to Merge"
+  set:
+    - "Reviewed: Action Needed"
